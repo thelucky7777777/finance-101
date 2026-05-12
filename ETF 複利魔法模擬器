@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>ETF 複利魔法模擬器</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 800px; }
+        h1 { color: #2c3e50; text-align: center; }
+        .control-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #34495e; }
+        input[type="range"] { width: 100%; cursor: pointer; }
+        .value-display { text-align: right; color: #3498db; font-weight: bold; font-size: 1.2em; }
+        .result { background: #e8f4fd; padding: 20px; border-radius: 10px; text-align: center; margin-top: 20px; }
+        .result-val { font-size: 2em; color: #2980b9; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🌱 ETF 複利魔法模擬器</h1>
+        <div class="control-group">
+            <label>初始本金 (NT$): <span id="v1" class="value-display">100,000</span></label>
+            <input type="range" id="initSum" min="0" max="1000000" step="10000" value="100000">
+        </div>
+        <div class="control-group">
+            <label>每月投入金額 (NT$): <span id="v2" class="value-display">10,000</span></label>
+            <input type="range" id="monthly" min="0" max="100000" step="1000" value="10000">
+        </div>
+        <div class="control-group">
+            <label>預期年化報酬率 (%): <span id="v3" class="value-display">7%</span></label>
+            <input type="range" id="rate" min="1" max="15" step="0.5" value="7">
+        </div>
+        <div class="control-group">
+            <label>投資年限 (年): <span id="v4" class="value-display">20</span></label>
+            <input type="range" id="years" min="1" max="40" step="1" value="20">
+        </div>
+        <canvas id="myChart"></canvas>
+        <div class="result">
+            <p>最終預估總資產</p>
+            <div id="finalTotal" class="result-val">NT$ 0</div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        let myChart;
+
+        function update() {
+            const initSum = parseInt(document.getElementById('initSum').value);
+            const monthly = parseInt(document.getElementById('monthly').value);
+            const rate = parseFloat(document.getElementById('rate').value) / 100 / 12;
+            const years = parseInt(document.getElementById('years').value);
+            
+            document.getElementById('v1').innerText = initSum.toLocaleString();
+            document.getElementById('v2').innerText = monthly.toLocaleString();
+            document.getElementById('v3').innerText = (rate*12*100).toFixed(1) + '%';
+            document.getElementById('v4').innerText = years;
+
+            let data = [];
+            let labels = [];
+            let current = initSum;
+            for (let i = 0; i <= years; i++) {
+                labels.push('第' + i + '年');
+                data.push(Math.round(current));
+                for (let m = 0; m < 12; m++) {
+                    current = (current + monthly) * (1 + rate);
+                }
+            }
+
+            document.getElementById('finalTotal').innerText = 'NT$ ' + data[data.length-1].toLocaleString();
+
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: '財富成長曲線', data: data, borderColor: '#3498db', tension: 0.1, fill: true, backgroundColor: 'rgba(52, 152, 219, 0.1)' }]
+                }
+            });
+        }
+
+        document.querySelectorAll('input').forEach(i => i.addEventListener('input', update));
+        update();
+    </script>
+</body>
+</html>
