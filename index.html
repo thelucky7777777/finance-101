@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>財務入門 — 從零開始的金融課</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <style>
   :root {
     --bg: #FAF7F2;
@@ -74,7 +75,7 @@
 
   /* ── MAIN LAYOUT ── */
   .container {
-    max-width: 860px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 40px 24px 80px;
   }
@@ -434,6 +435,86 @@
   }
   .score-display strong { color: var(--accent); }
 
+  /* ── SIMULATOR STYLES ── */
+  .simulator-layout {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .sim-controls {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .sim-chart-container {
+    flex: 1.3;
+    min-width: 340px;
+    height: 380px;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .sim-control-item {
+    background: var(--surface);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .sim-control-item.highlight-bg {
+    background: var(--accent-pale);
+    border-color: var(--accent-light);
+  }
+  .sim-label {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+    font-size: 0.88rem;
+  }
+  .sim-val-tag {
+    float: right;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .sim-input-range {
+    width: 100%;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+  .sim-result-panel {
+    background: var(--ink);
+    color: #FAF7F2;
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .sim-final-sum {
+    font-size: 1.5rem;
+    color: #52B788;
+    font-weight: 700;
+    display: block;
+    margin: 4px 0;
+  }
+  .sim-strategy-box {
+    margin-top: 24px;
+    border-left: 4px solid var(--accent);
+    background: var(--accent-pale);
+    padding: 20px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    box-shadow: var(--shadow);
+    width: 100%;
+  }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     header { padding: 16px 20px; }
@@ -443,6 +524,8 @@
     .card { padding: 20px; }
     .quiz-section { padding: 22px 18px; }
     .chapter-title { font-size: 1.5rem; }
+    .simulator-layout { flex-direction: column; }
+    .sim-chart-container { height: 300px; min-width: 100%; }
   }
 </style>
 </head>
@@ -461,16 +544,15 @@
 
 <div class="container">
 
-  <!-- CHAPTER NAV -->
   <nav class="chapter-nav">
     <button class="chapter-btn active" onclick="goChapter(0)"><span class="dot"></span>第一課：錢的基本概念</button>
     <button class="chapter-btn" onclick="goChapter(1)"><span class="dot"></span>第二課：存款與定存</button>
     <button class="chapter-btn" onclick="goChapter(2)"><span class="dot"></span>第三課：股票</button>
     <button class="chapter-btn" onclick="goChapter(3)"><span class="dot"></span>第四課：ETF 深度教學</button>
     <button class="chapter-btn" onclick="goChapter(4)"><span class="dot"></span>第五課：我該怎麼選？</button>
+    <button class="chapter-btn" onclick="goChapter(5)"><span class="dot"></span>第六課：策略模擬器</button>
   </nav>
 
-  <!-- ════════════════════════════════ CHAPTER 0 ════════════════════════════════ -->
   <div class="chapter active" id="ch-0">
     <div class="chapter-header">
       <div class="chapter-tag">第一課 · 基礎概念</div>
@@ -536,7 +618,6 @@
       <p style="margin-top:12px; color:var(--ink-muted); font-size:0.85rem;">重點外帶：<strong>越早開始投資，你擁有的「時間坡道」越長，複利效果越強大。</strong></p>
     </div>
 
-    <!-- QUIZ 0 -->
     <div class="quiz-section">
       <div class="quiz-header">
         <span class="quiz-badge">小測驗</span>
@@ -549,11 +630,13 @@
         <button class="quiz-opt" onclick="answer(0,2,false)">C. 不變，利息剛好抵銷通膨</button>
       </div>
       <div class="quiz-feedback" id="q0-fb"></div>
-      <button class="btn btn-ghost" onclick="nextChapter(0)" id="q0-next" style="display:none">繼續下一課 →</button>
+      <div class="nav-btns">
+        <div></div>
+        <button class="btn btn-primary" onclick="nextChapter(0)" id="q0-next" style="display:none">繼續下一課 →</button>
+      </div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════ CHAPTER 1 ════════════════════════════════ -->
   <div class="chapter" id="ch-1">
     <div class="chapter-header">
       <div class="chapter-tag">第二課 · 最安全的起點</div>
@@ -598,7 +681,7 @@
         風險與報酬評估
       </div>
       <div class="risk-meter">
-        <span class="risk-label">風險</span>
+        <span class="risk-label">Risk</span>
         <div class="risk-bar">
           <div class="risk-dot filled-green"></div>
           <div class="risk-dot"></div>
@@ -609,7 +692,7 @@
         <span style="font-size:0.82rem; color:var(--green)">極低</span>
       </div>
       <div class="risk-meter">
-        <span class="risk-label">報酬</span>
+        <span class="risk-label">Return</span>
         <div class="risk-bar">
           <div class="risk-dot filled-green"></div>
           <div class="risk-dot"></div>
@@ -622,7 +705,6 @@
       <p style="margin-top:14px; font-size:0.88rem;">適合：緊急預備金、短期內會用到的錢、完全不能承受任何損失的資金。</p>
     </div>
 
-    <!-- QUIZ 1 -->
     <div class="quiz-section">
       <div class="quiz-header">
         <span class="quiz-badge">小測驗</span>
@@ -635,11 +717,13 @@
         <button class="quiz-opt" onclick="answer(1,2,false)">C. 完全沒有保障</button>
       </div>
       <div class="quiz-feedback" id="q1-fb"></div>
-      <button class="btn btn-ghost" onclick="nextChapter(1)" id="q1-next" style="display:none">繼續下一課 →</button>
+      <div class="nav-btns">
+        <button class="btn btn-dark" onclick="goChapter(0)">← 上一課</button>
+        <button class="btn btn-primary" onclick="nextChapter(1)" id="q1-next" style="display:none">繼續下一課 →</button>
+      </div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════ CHAPTER 2 ════════════════════════════════ -->
   <div class="chapter" id="ch-2">
     <div class="chapter-header">
       <div class="chapter-tag">第三課 · 成為公司股東</div>
@@ -683,7 +767,7 @@
         ⚠️ 關鍵認知：短期股價難以預測。即使是專業投資人也常常看錯。切忌借錢買股票。
       </div>
       <div class="risk-meter" style="margin-top:16px">
-        <span class="risk-label">風險</span>
+        <span class="risk-label">Risk</span>
         <div class="risk-bar">
           <div class="risk-dot filled-red"></div>
           <div class="risk-dot filled-red"></div>
@@ -694,7 +778,7 @@
         <span style="font-size:0.82rem; color:#C0392B">高</span>
       </div>
       <div class="risk-meter">
-        <span class="risk-label">報酬</span>
+        <span class="risk-label">Return</span>
         <div class="risk-bar">
           <div class="risk-dot filled-gold"></div>
           <div class="risk-dot filled-gold"></div>
@@ -706,7 +790,6 @@
       </div>
     </div>
 
-    <!-- QUIZ 2 -->
     <div class="quiz-section">
       <div class="quiz-header">
         <span class="quiz-badge">小測驗</span>
@@ -719,11 +802,13 @@
         <button class="quiz-opt" onclick="answer(2,2,false)">C. 存款保險理賠</button>
       </div>
       <div class="quiz-feedback" id="q2-fb"></div>
-      <button class="btn btn-ghost" onclick="nextChapter(2)" id="q2-next" style="display:none">繼續下一課 →</button>
+      <div class="nav-btns">
+        <button class="btn btn-dark" onclick="goChapter(1)">← 上一課</button>
+        <button class="btn btn-primary" onclick="nextChapter(2)" id="q2-next" style="display:none">繼續下一課 →</button>
+      </div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════ CHAPTER 3 ════════════════════════════════ -->
   <div class="chapter" id="ch-3">
     <div class="chapter-header">
       <div class="chapter-tag">第四課 · ETF 完整攻略</div>
@@ -731,7 +816,6 @@
       <p class="chapter-subtitle">從概念、種類、實際標的，到買賣操作——一次學完。</p>
     </div>
 
-    <!-- 4-0: 基礎複習 -->
     <div class="card">
       <div class="card-title">
         <div class="card-icon icon-orange">📦</div>
@@ -754,7 +838,6 @@
       </div>
     </div>
 
-    <!-- 4-1: ETF 種類 -->
     <div class="card">
       <div class="card-title">
         <div class="card-icon icon-blue">🗂️</div>
@@ -762,7 +845,6 @@
       </div>
 
       <div style="display:flex; flex-direction:column; gap:14px; margin-top:4px">
-
         <div style="border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:16px 18px;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px">
             <span style="background:var(--green-light); color:var(--green); font-size:0.72rem; font-weight:600; padding:3px 10px; border-radius:99px; letter-spacing:0.05em">股票型</span>
@@ -797,11 +879,9 @@
           </div>
           <p style="font-size:0.87rem; margin:0; color:#922B21"><strong>反向 ETF</strong>：指數跌，它漲；<strong>槓桿 ETF</strong>：放大 2 倍報酬（也放大 2 倍虧損）。設計上用於短期交易，長期持有幾乎必然虧損（因每日複利損耗），<strong>初學者請勿碰</strong>。</p>
         </div>
-
       </div>
     </div>
 
-    <!-- 4-2: 台灣常見 ETF -->
     <div class="card">
       <div class="card-title">
         <div class="card-icon icon-green">🇹🇼</div>
@@ -871,7 +951,6 @@
       </div>
 
       <div style="font-size:0.8rem; font-weight:600; letter-spacing:0.08em; color:var(--blue); margin-bottom:10px; padding-bottom:6px; border-bottom:2px solid var(--blue-light)">▌ 主動式 ETF（經理人主動選股）</div>
-
       <div class="highlight blue" style="margin-bottom:14px">
         📌 主動式 ETF 由基金經理人主動選股，不追蹤固定指數，目標是超越市場表現。費用率通常高於被動型，但仍低於傳統共同基金。
       </div>
@@ -891,553 +970,278 @@
               <td style="padding:10px; font-weight:700">00936<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">台新臺灣永續高息中小</span></td>
               <td style="padding:10px 8px; text-align:center">ESG篩選＋高息中小型股</td>
               <td style="padding:10px 8px; text-align:center">每月配息</td>
-              <td style="padding:10px 8px; font-size:0.82rem">鎖定中小型高息股，月配息吸引退休族，但中小型股波動較大</td>
+              <td style="padding:10px 8px; font-size:0.82rem">中小型成分股動能強，但經理人主動調整可能帶來超額報酬或額外風險</td>
             </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">00943<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">國泰台灣領袖50</span></td>
-              <td style="padding:10px 8px; text-align:center">主動篩選台灣龍頭企業</td>
+            <tr>
+              <td style="padding:10px; font-weight:700">00947B<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">台新美國優選非投資等級債</span></td>
+              <td style="padding:10px 8px; text-align:center">精選美國高收益債券</td>
               <td style="padding:10px 8px; text-align:center">每季配息</td>
-              <td style="padding:10px 8px; font-size:0.82rem">聚焦台灣大型龍頭股，選股邏輯透明，適合穩健型投資人</td>
-            </tr>
-            <tr>
-              <td style="padding:10px; font-weight:700">00946<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">街口台灣ESG優選</span></td>
-              <td style="padding:10px 8px; text-align:center">ESG評分優選</td>
-              <td style="padding:10px 8px; text-align:center">每季配息</td>
-              <td style="padding:10px 8px; font-size:0.82rem">結合ESG永續評分與財務指標，兼顧獲利與社會責任</td>
+              <td style="padding:10px 8px; font-size:0.82rem">非投資等級債主動管理，由經理人防範違約風險、追求較高配息收益</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- 4-3: 美國常見 ETF -->
     <div class="card">
       <div class="card-title">
-        <div class="card-icon icon-orange">🇺🇸</div>
-        美國常見 ETF 介紹
+        <div class="card-icon icon-gold">🛒</div>
+        如何開始買賣 ETF？
       </div>
-
-      <p style="font-size:0.88rem; margin-bottom:14px">美國 ETF 市場是全球最成熟的市場，費用率普遍極低，規模龐大流動性高。台灣投資人可透過複委託（請見買賣流程）購買。</p>
-
-      <div style="overflow-x:auto; margin-bottom:16px">
-        <table style="width:100%; border-collapse:collapse; font-size:0.84rem; min-width:580px">
-          <thead>
-            <tr style="background:var(--bg); border-bottom:1.5px solid var(--border)">
-              <th style="padding:10px; text-align:left; font-weight:600">代號 / 名稱</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:600">追蹤標的</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:600">費用率</th>
-              <th style="padding:10px 8px; text-align:left; font-weight:600">適合對象</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">SPY<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">SPDR S&P 500 ETF</span></td>
-              <td style="padding:10px 8px; text-align:center">美國S&P 500指數</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">0.09%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">追蹤美國前500大企業，全球最大ETF，流動性最佳</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">VOO<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">Vanguard S&P 500 ETF</span></td>
-              <td style="padding:10px 8px; text-align:center">美國S&P 500指數</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">0.03%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">與SPY追蹤相同指數，費用率更低，長期存股首選</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">QQQ<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">Invesco QQQ Trust</span></td>
-              <td style="padding:10px 8px; text-align:center">那斯達克100指數</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--gold)">0.20%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">科技股佔比高（蘋果、微軟、輝達），成長潛力大但波動較高</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">VTI<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">Vanguard全美股票ETF</span></td>
-              <td style="padding:10px 8px; text-align:center">美國整體股市（約4000支）</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">0.03%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">涵蓋美國大中小型股，分散程度最高，適合追求全面曝險者</td>
-            </tr>
-            <tr>
-              <td style="padding:10px; font-weight:700">VT<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">Vanguard全球股票ETF</span></td>
-              <td style="padding:10px 8px; text-align:center">全球股市（約9500支）</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">0.07%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">一張 ETF 持有全球股票，終極分散，風險最低的股票型選擇</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="highlight gold">
-        ⚠️ 購買美國 ETF 的注意事項：需透過「複委託」申請（手續費較高）、股息需繳 30% 預扣稅、匯率波動也是風險之一。建議先熟悉台灣 ETF 後再考慮。
-      </div>
-
-      <div style="margin-top:16px; overflow-x:auto">
-        <table style="width:100%; border-collapse:collapse; font-size:0.84rem; min-width:400px">
-          <thead>
-            <tr style="background:var(--bg); border-bottom:1.5px solid var(--border)">
-              <th style="padding:10px 8px; text-align:left; font-weight:600; color:var(--ink-muted)">比較項目</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:600">台灣 ETF</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:600">美國 ETF</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px 8px; color:var(--ink-muted)">開戶方式</td>
-              <td style="padding:10px 8px; text-align:center">一般證券帳戶</td>
-              <td style="padding:10px 8px; text-align:center">需申請複委託</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px 8px; color:var(--ink-muted)">費用率</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--gold)">0.2～0.8%</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">0.03～0.2%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px 8px; color:var(--ink-muted)">股息課稅</td>
-              <td style="padding:10px 8px; text-align:center">依個人所得稅</td>
-              <td style="padding:10px 8px; text-align:center; color:#C0392B">預扣30%</td>
-            </tr>
-            <tr>
-              <td style="padding:10px 8px; color:var(--ink-muted)">匯率風險</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">無</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--gold)">有（美元/台幣）</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 4-4: 定期定額 -->
-    <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-green">📅</div>
-        定期定額策略：微笑曲線的威力
-      </div>
-
-      <p>定期定額是指<strong>每月固定日期、固定金額</strong>買入 ETF，不管市場高低都持續執行。</p>
-
-      <div class="analogy">
-        <div class="analogy-label">☕ 生活比喻</div>
-        就像每天早上固定買一杯咖啡，不管咖啡漲價還是特價都照買。長期下來，你的平均成本會自然被平滑，避免「一次全押在最高點」的悲劇。
-      </div>
-
-      <div style="margin:20px 0">
-        <div style="font-weight:600; font-size:0.92rem; margin-bottom:14px">📊 微笑曲線示意（每月投入 3,000 元）</div>
-
-        <!-- Smile curve visualization -->
-        <div style="background:var(--bg); border-radius:var(--radius-sm); padding:20px; border:1px solid var(--border)">
-          <div style="display:flex; justify-content:space-between; align-items:flex-end; height:120px; gap:4px; margin-bottom:8px">
-            <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1">
-              <div style="background:var(--accent); border-radius:4px 4px 0 0; width:100%; height:80px; position:relative">
-                <div style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:0.7rem; color:var(--accent); white-space:nowrap; font-weight:600">$60</div>
-              </div>
-              <div style="font-size:0.7rem; color:var(--ink-muted)">1月</div>
-              <div style="font-size:0.68rem; color:var(--green)">買50股</div>
-            </div>
-            <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1">
-              <div style="background:var(--accent); border-radius:4px 4px 0 0; width:100%; height:55px; position:relative">
-                <div style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:0.7rem; color:var(--accent); white-space:nowrap; font-weight:600">$45</div>
-              </div>
-              <div style="font-size:0.7rem; color:var(--ink-muted)">2月</div>
-              <div style="font-size:0.68rem; color:var(--green)">買67股</div>
-            </div>
-            <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1">
-              <div style="background:var(--accent); border-radius:4px 4px 0 0; width:100%; height:35px; position:relative">
-                <div style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:0.7rem; color:var(--accent); white-space:nowrap; font-weight:600">$30</div>
-              </div>
-              <div style="font-size:0.7rem; color:var(--ink-muted)">3月</div>
-              <div style="font-size:0.68rem; color:var(--green)">買100股</div>
-            </div>
-            <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1">
-              <div style="background:var(--accent); border-radius:4px 4px 0 0; width:100%; height:45px; position:relative">
-                <div style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:0.7rem; color:var(--accent); white-space:nowrap; font-weight:600">$40</div>
-              </div>
-              <div style="font-size:0.7rem; color:var(--ink-muted)">4月</div>
-              <div style="font-size:0.68rem; color:var(--green)">買75股</div>
-            </div>
-            <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1">
-              <div style="background:var(--accent); border-radius:4px 4px 0 0; width:100%; height:65px; position:relative">
-                <div style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:0.7rem; color:var(--accent); white-space:nowrap; font-weight:600">$55</div>
-              </div>
-              <div style="font-size:0.7rem; color:var(--ink-muted)">5月</div>
-              <div style="font-size:0.68rem; color:var(--green)">買55股</div>
-            </div>
-            <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1">
-              <div style="background:var(--green); border-radius:4px 4px 0 0; width:100%; height:95px; position:relative">
-                <div style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:0.7rem; color:var(--green); white-space:nowrap; font-weight:600">$70</div>
-              </div>
-              <div style="font-size:0.7rem; color:var(--ink-muted)">6月</div>
-              <div style="font-size:0.68rem; color:var(--green)">買43股</div>
-            </div>
-          </div>
-          <div style="font-size:0.75rem; color:var(--ink-muted); text-align:center">每月固定投入 3,000 元 ── 價格低時自動買更多股，價格高時買較少股</div>
+      <p>買賣 ETF 的流程跟買普通股票完全一樣，非常親民：</p>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin:16px 0;">
+        <div style="background:var(--bg); padding:16px; border-radius:var(--radius-sm)">
+          <div style="font-weight:600; font-size:0.9rem; color:var(--accent); margin-bottom:4px">1. 證券開戶</div>
+          <div style="font-size:0.82rem; color:var(--ink-muted)">攜帶身分證件到證券商（或線上）開立「證券戶」與「交割銀行戶」。</div>
         </div>
-      </div>
-
-      <div class="compare-grid" style="margin-top:16px">
-        <div class="compare-item">
-          <div class="label">6個月總投入</div>
-          <div class="value" style="color:var(--ink)">18,000 元</div>
+        <div style="background:var(--bg); padding:16px; border-radius:var(--radius-sm)">
+          <div style="font-weight:600; font-size:0.9rem; color:var(--accent); margin-bottom:4px">2. 下單交易</div>
+          <div style="font-size:0.82rem; color:var(--ink-muted)">打開證券商 App，輸入 ETF 代號（如 0050），即可在股市交易時間（9:00-13:30）隨時買賣。</div>
         </div>
-        <div class="compare-item">
-          <div class="label">累計持股</div>
-          <div class="value" style="color:var(--blue)">390 股</div>
-        </div>
-        <div class="compare-item accent-border">
-          <div class="label">平均成本</div>
-          <div class="value" style="color:var(--accent)">約 $46</div>
-        </div>
-      </div>
-
-      <div class="highlight" style="margin-top:16px">
-        💡 關鍵結論：即使市場從 $60 跌到 $30 再漲回 $70，你的平均成本約 $46，最終仍然獲利。這就是微笑曲線的威力——跌的時候不用怕，反而在幫你「打折買入」。
-      </div>
-
-      <div style="margin-top:16px">
-        <div style="font-weight:600; font-size:0.9rem; margin-bottom:10px">定期定額的四大優點</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.85rem">
-          <div style="background:var(--bg); border-radius:var(--radius-sm); padding:12px 14px">
-            <div style="font-weight:600; margin-bottom:4px">😌 不需要擇時</div>
-            <div style="color:var(--ink-muted)">不用猜高點低點，省去焦慮</div>
-          </div>
-          <div style="background:var(--bg); border-radius:var(--radius-sm); padding:12px 14px">
-            <div style="font-weight:600; margin-bottom:4px">📉 降低平均成本</div>
-            <div style="color:var(--ink-muted)">跌時買更多，自然攤平成本</div>
-          </div>
-          <div style="background:var(--bg); border-radius:var(--radius-sm); padding:12px 14px">
-            <div style="font-weight:600; margin-bottom:4px">🤖 培養紀律</div>
-            <div style="color:var(--ink-muted)">自動化執行，避免情緒干擾</div>
-          </div>
-          <div style="background:var(--bg); border-radius:var(--radius-sm); padding:12px 14px">
-            <div style="font-weight:600; margin-bottom:4px">💰 門檻低</div>
-            <div style="color:var(--ink-muted)">台灣可從 1 股（零股）開始</div>
-          </div>
+        <div style="background:var(--bg); padding:16px; border-radius:var(--radius-sm)">
+          <div style="font-weight:600; font-size:0.9rem; color:var(--accent); margin-bottom:4px">3. 交易單位</div>
+          <div style="font-size:0.82rem; color:var(--ink-muted)">可買一張（1000股）或利用「定期定額 / 盤後盤中零股」只買 1 股，最低只要幾百元就能開始。</div>
         </div>
       </div>
     </div>
 
-    <!-- 4-5: 如何買賣 -->
-    <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-gold">🏧</div>
-        如何實際買賣 ETF：以國泰為例
-      </div>
-
-      <p style="font-size:0.88rem; margin-bottom:20px">以下以<strong>國泰世華銀行</strong>與<strong>國泰證券</strong>為例，說明從零開始的完整流程。</p>
-
-      <!-- Step 1 -->
-      <div style="display:flex; gap:16px; margin-bottom:20px; align-items:flex-start">
-        <div style="min-width:40px; height:40px; border-radius:50%; background:var(--ink); color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem; flex-shrink:0">1</div>
-        <div style="flex:1">
-          <div style="font-weight:700; font-size:0.95rem; margin-bottom:8px">開立銀行帳戶（國泰世華）</div>
-          <div style="font-size:0.85rem; color:var(--ink-muted); margin-bottom:8px">投資前需要一個銀行帳戶作為資金往來帳戶。</div>
-          <div style="background:var(--bg); border-radius:var(--radius-sm); padding:14px 16px; font-size:0.84rem">
-            <div style="margin-bottom:6px"><strong>臨櫃開戶：</strong>攜帶身分證至任一國泰世華分行，約 30 分鐘完成</div>
-            <div style="margin-bottom:6px"><strong>網路開戶（CUBE App）：</strong>下載「CUBE」App → 點選「開戶」→ 身分驗證（需健保卡或第二證件）→ 視訊核身 → 完成</div>
-            <div style="color:var(--ink-muted)">所需文件：身分證、第二證件（健保卡/駕照）、本人手機</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="border-left:2px dashed var(--border); margin:0 0 20px 20px; height:16px"></div>
-
-      <!-- Step 2 -->
-      <div style="display:flex; gap:16px; margin-bottom:20px; align-items:flex-start">
-        <div style="min-width:40px; height:40px; border-radius:50%; background:var(--ink); color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem; flex-shrink:0">2</div>
-        <div style="flex:1">
-          <div style="font-weight:700; font-size:0.95rem; margin-bottom:8px">開立證券帳戶（國泰證券）</div>
-          <div style="font-size:0.85rem; color:var(--ink-muted); margin-bottom:8px">購買 ETF 需要「證券帳戶」，與銀行帳戶是不同帳戶。</div>
-          <div style="background:var(--bg); border-radius:var(--radius-sm); padding:14px 16px; font-size:0.84rem">
-            <div style="margin-bottom:6px"><strong>線上開戶：</strong>至國泰證券官網或下載「國泰證券 App」→「線上開戶」→ 填寫基本資料 → 上傳身分證正反面 → 設定交割帳戶（連結國泰世華帳戶）</div>
-            <div style="margin-bottom:6px"><strong>交割帳戶：</strong>買賣 ETF 的款項會自動從此帳戶扣款/入帳，建議連結同行（國泰世華）較方便</div>
-            <div style="color:var(--ink-muted)">開戶審核通常 1～3 個工作天完成</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="border-left:2px dashed var(--border); margin:0 0 20px 20px; height:16px"></div>
-
-      <!-- Step 3 -->
-      <div style="display:flex; gap:16px; margin-bottom:16px; align-items:flex-start">
-        <div style="min-width:40px; height:40px; border-radius:50%; background:var(--accent); color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem; flex-shrink:0">3</div>
-        <div style="flex:1">
-          <div style="font-weight:700; font-size:0.95rem; margin-bottom:8px">下單買入 ETF</div>
-          <div style="font-size:0.85rem; color:var(--ink-muted); margin-bottom:8px">帳戶開立完成後，即可在盤中（09:00～13:30）下單。</div>
-          <div style="background:var(--bg); border-radius:var(--radius-sm); padding:14px 16px; font-size:0.84rem; margin-bottom:10px">
-            <div style="margin-bottom:8px"><strong>整股交易：</strong>最小單位為「1張」（1,000股）。以 0050 約 185 元計算，1張需約 185,000 元。</div>
-            <div style="margin-bottom:8px"><strong>零股交易（推薦新手）：</strong>最小可買 1 股，0050 約 185 元即可入場，適合小額定期定額。</div>
-            <div><strong>下單步驟：</strong>開啟國泰證券 App → 搜尋代號（如 0050）→ 選擇「現股買進」→ 輸入股數與價格 → 確認送出</div>
-          </div>
-          <div style="background:var(--bg); border-radius:var(--radius-sm); padding:14px 16px; font-size:0.84rem">
-            <div style="font-weight:600; margin-bottom:8px">💸 費用說明</div>
-            <div style="display:grid; gap:6px">
-              <div style="display:flex; justify-content:space-between; padding-bottom:6px; border-bottom:1px solid var(--border)">
-                <span>手續費</span><span style="color:var(--accent)">成交金額 × 0.1425%（每筆最低 20 元）</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; padding-bottom:6px; border-bottom:1px solid var(--border)">
-                <span>證交稅（賣出時）</span><span style="color:var(--accent)">成交金額 × 0.1%</span>
-              </div>
-              <div style="display:flex; justify-content:space-between">
-                <span>ETF 管理費</span><span style="color:var(--ink-muted)">每年從淨值中自動扣除，不另收</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="highlight">
-        💡 國泰證券支援「定期定額」功能，設定完成後每月自動扣款買入，完全不需要手動操作，最低每月 1,000 元起。
-      </div>
-    </div>
-
-    <!-- QUIZ 3 -->
     <div class="quiz-section">
       <div class="quiz-header">
         <span class="quiz-badge">小測驗</span>
         <span class="quiz-title-text">第四課理解確認</span>
       </div>
-      <p class="quiz-q">小美想每月花 3,000 元買 ETF，但不想每次手動下單。她應該使用哪項功能？</p>
+      <p class="quiz-q">關於反向 ETF 與槓桿型 ETF，以下敘述何者正確？</p>
       <div class="quiz-options" id="q3-opts">
-        <button class="quiz-opt" onclick="answer(3,0,false)">A. 反向 ETF，可以對沖風險</button>
-        <button class="quiz-opt" onclick="answer(3,1,true)">B. 定期定額，設定後自動扣款買入</button>
-        <button class="quiz-opt" onclick="answer(3,2,false)">C. 複委託，購買美國 ETF</button>
+        <button class="quiz-opt" onclick="answer(3,0,false)">A. 風險極低，非常適合新手長期存股</button>
+        <button class="quiz-opt" onclick="answer(3,1,false)">B. 報酬率與傳統存款一樣穩定</button>
+        <button class="quiz-opt" onclick="answer(3,2,true)">C. 存在每日複利損耗，不適合長期持有</button>
       </div>
       <div class="quiz-feedback" id="q3-fb"></div>
-      <button class="btn btn-ghost" onclick="nextChapter(3)" id="q3-next" style="display:none">繼續下一課 →</button>
+      <div class="nav-btns">
+        <button class="btn btn-dark" onclick="goChapter(2)">← 上一課</button>
+        <button class="btn btn-primary" onclick="nextChapter(3)" id="q3-next" style="display:none">繼續下一課 →</button>
+      </div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════ CHAPTER 4 ════════════════════════════════ -->
   <div class="chapter" id="ch-4">
     <div class="chapter-header">
-      <div class="chapter-tag">第五課 · 實務思考</div>
+      <div class="chapter-tag">第五課 · 行動指南</div>
       <h1 class="chapter-title">我該怎麼選？</h1>
-      <p class="chapter-subtitle">沒有「最好」的商品，只有「最適合你當下狀況」的配置。</p>
+      <p class="chapter-subtitle">根據你的年齡、風險承受度、理財目標，規劃第一步。</p>
     </div>
 
     <div class="card">
       <div class="card-title">
-        <div class="card-icon icon-orange">🗺️</div>
-        三個問題決定你的起點
+        <div class="card-icon icon-blue">👤</div>
+        情境一：剛出社會的年輕上班族（22-30歲）
       </div>
-      <p><strong>問題一：這筆錢多久後會用到？</strong></p>
-      <p style="color:var(--ink-muted); font-size:0.88rem; margin-bottom:12px">1 年內要用 → 存款定存。3 年以上不急用 → 可考慮基金、ETF。</p>
-
-      <p><strong>問題二：如果帳面虧損 20%，你能接受嗎？</strong></p>
-      <p style="color:var(--ink-muted); font-size:0.88rem; margin-bottom:12px">不能接受任何虧損 → 定存。可以接受短期波動 → 股票、ETF。</p>
-
-      <p><strong>問題三：你想花多少時間管理？</strong></p>
-      <p style="color:var(--ink-muted); font-size:0.88rem;">完全不想管 → 定存或 ETF 定期定額。想主動操作 → 個股。</p>
+      <p><strong>痛點：</strong>本金少、薪資成長中。<strong>優勢：</strong>時間最長（複利坡道長）。</p>
+      <p><strong>建議：</strong>著重「市值型 ETF」（如 0050, 006208），追求長期的資產總額增長，而非短期領配息。利用定期定額，強迫自己儲蓄與投資。</p>
     </div>
 
     <div class="card">
       <div class="card-title">
-        <div class="card-icon icon-green">🎯</div>
-        零基礎入門建議路線
+        <div class="card-icon icon-gold">👨‍👩‍👧‍👦</div>
+        情境二：成家立業的三寶爸媽（30-50歲）
       </div>
-      <div style="display:flex; flex-direction:column; gap:12px; margin-top:4px">
-        <div style="display:flex; gap:14px; align-items:flex-start">
-          <div style="width:28px; height:28px; border-radius:50%; background:var(--ink); color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; flex-shrink:0">1</div>
-          <div>
-            <div style="font-weight:600; margin-bottom:4px">先建立 3～6 個月的緊急預備金</div>
-            <div style="font-size:0.85rem; color:var(--ink-muted)">存入活期或短期定存，確保生活急用不受投資影響。</div>
-          </div>
-        </div>
-        <div style="display:flex; gap:14px; align-items:flex-start">
-          <div style="width:28px; height:28px; border-radius:50%; background:var(--ink); color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; flex-shrink:0">2</div>
-          <div>
-            <div style="font-weight:600; margin-bottom:4px">從 ETF 定期定額開始</div>
-            <div style="font-size:0.85rem; color:var(--ink-muted)">每月固定金額（如 3,000 元）買入 0050 或全球型 ETF，分散時間成本，避免買在高點。</div>
-          </div>
-        </div>
-        <div style="display:flex; gap:14px; align-items:flex-start">
-          <div style="width:28px; height:28px; border-radius:50%; background:var(--ink); color:#FAF7F2; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; flex-shrink:0">3</div>
-          <div>
-            <div style="font-weight:600; margin-bottom:4px">有餘力再研究個股</div>
-            <div style="font-size:0.85rem; color:var(--ink-muted)">了解財務報表基礎後，再用較小比例資金嘗試個股投資。</div>
-          </div>
-        </div>
-      </div>
-      <div class="highlight" style="margin-top:18px">
-        💡 核心原則：只用「閒錢」投資，絕不借貸、絕不把生活費拿來冒險。
-      </div>
+      <p><strong>痛點：</strong>開銷大（房貸、教育費）。<strong>優勢：</strong>收入相對穩定。</p>
+      <p><strong>建議：</strong>核心配置以「核心市值型」搭配部分「高股息型或債券型 ETF」，在追求資產穩健成長的同時，也能有部分現金流貼補家用。</p>
     </div>
 
     <div class="card">
       <div class="card-title">
-        <div class="card-icon icon-blue">📋</div>
-        三大商品快速總結
+        <div class="card-icon icon-green">👴</div>
+        情境三：準備退休的樂活族（55歲以上）
       </div>
-      <div style="overflow-x:auto">
-        <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
-          <thead>
-            <tr style="border-bottom:2px solid var(--border)">
-              <th style="padding:10px 8px; text-align:left; color:var(--ink-muted); font-weight:500">商品</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:500; color:var(--ink-muted)">風險</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:500; color:var(--ink-muted)">預期報酬</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:500; color:var(--ink-muted)">適合對象</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px 8px; font-weight:600">存款 / 定存</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">極低</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">低（1～2%）</td>
-              <td style="padding:10px 8px; text-align:center">保守型</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px 8px; font-weight:600">ETF / 基金</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--gold)">中</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--gold)">中（長期 5～8%）</td>
-              <td style="padding:10px 8px; text-align:center">穩健型</td>
-            </tr>
-            <tr>
-              <td style="padding:10px 8px; font-weight:600">個股</td>
-              <td style="padding:10px 8px; text-align:center; color:#C0392B">高</td>
-              <td style="padding:10px 8px; text-align:center; color:#C0392B">高（不確定）</td>
-              <td style="padding:10px 8px; text-align:center">積極型</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <p><strong>痛點：</strong>經不起大風大浪。<strong>優勢：</strong>累積了一定本金。</p>
+      <p><strong>建議：</strong>著重防禦與現金流。以「債券型 ETF」搭配穩健的「高股息 ETF」為主，降低整體資產的波動波動，保障退休金不會因為股市大跌而重創。</p>
     </div>
 
-    <!-- QUIZ 4 -->
     <div class="quiz-section">
       <div class="quiz-header">
-        <span class="quiz-badge">最終測驗</span>
-        <span class="quiz-title-text">綜合理解確認</span>
+        <span class="quiz-badge">小測驗</span>
+        <span class="quiz-title-text">第五課理解確認</span>
       </div>
-      <p class="quiz-q">剛出社會的阿明，每月薪水 35,000 元，手邊有 10 萬元存款，打算開始理財。以下哪個起步最適合他？</p>
+      <p class="quiz-q">一個剛畢業 23 歲、距離退休還有 40 年的年輕人，最能幫他放大複利效果的策略是？</p>
       <div class="quiz-options" id="q4-opts">
-        <button class="quiz-opt" onclick="answer(4,0,false)">A. 把 10 萬元全押在一支高科技股票上</button>
-        <button class="quiz-opt" onclick="answer(4,1,false)">B. 把所有錢鎖入 3 年定存，之後再說</button>
-        <button class="quiz-opt" onclick="answer(4,2,true)">C. 保留 3 個月緊急預備金在定存，剩餘每月定期定額買 ETF</button>
+        <button class="quiz-opt" onclick="answer(4,0,true)">A. 利用大把的時間優勢，專注配置市值型商品，讓本金滾大</button>
+        <button class="quiz-opt" onclick="answer(4,1,false)">B. 把全部的錢放定存，防止任何波動</button>
+        <button class="quiz-opt" onclick="answer(4,2,false)">C. 買滿反向與槓桿型商品，追求每天賺大錢</button>
       </div>
       <div class="quiz-feedback" id="q4-fb"></div>
-      <button class="btn btn-primary" onclick="showFinal()" id="q4-next" style="display:none">🎉 查看學習成果</button>
+      <div class="nav-btns">
+        <button class="btn btn-dark" onclick="goChapter(3)">← 上一課</button>
+        <button class="btn btn-primary" onclick="nextChapter(4)" id="q4-next" style="display:none">前往最終章 →</button>
+      </div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════ FINAL SCREEN ════════════════════════════════ -->
+  <div class="chapter" id="ch-5">
+    <div class="chapter-header">
+      <div class="chapter-tag">第六課 · 實戰演練</div>
+      <h1 class="chapter-title">ETF 投資策略模擬器</h1>
+      <p class="chapter-subtitle">親自動手調整參數，看看不同的本金、報酬率、內扣費用與通貨膨脹，在時間複利下對你的真實購買力產生的巨大影響。</p>
+    </div>
+
+    <div class="simulator-layout">
+      <div class="sim-controls">
+        <div class="sim-control-item">
+          <label class="sim-label">初始本金 (NT$): <span id="v1" class="sim-val-tag"></span></label>
+          <input type="range" id="initSum" class="sim-input-range" min="0" max="1000000" step="10000" value="100000">
+        </div>
+        <div class="sim-control-item">
+          <label class="sim-label">每月定期定額投入 (NT$): <span id="v2" class="sim-val-tag"></span></label>
+          <input type="range" id="monthly" class="sim-input-range" min="0" max="100000" step="1000" value="10000">
+        </div>
+        <div class="sim-control-item">
+          <label class="sim-label">預期年化報酬率 (%): <span id="v3" class="sim-val-tag"></span></label>
+          <input type="range" id="rate" class="sim-input-range" min="1" max="15" step="0.5" value="7">
+        </div>
+        <div class="sim-control-item">
+          <label class="sim-label">投資年限 (年): <span id="v4" class="sim-val-tag"></span></label>
+          <input type="range" id="years" class="sim-input-range" min="1" max="40" step="1" value="20">
+        </div>
+        <div class="sim-control-item sim-control-item highlight-bg">
+          <label class="sim-label">ETF 總內扣費用率 (%): <span id="v5" class="sim-val-tag"></span></label>
+          <input type="range" id="cost" class="sim-input-range" min="0" max="2.5" step="0.05" value="0.5">
+        </div>
+        <div class="sim-control-item sim-control-item highlight-bg">
+          <label class="sim-label">預期年通貨膨脹率 (%): <span id="v6" class="sim-val-tag"></span></label>
+          <input type="range" id="inflation" class="sim-input-range" min="0" max="5" step="0.1" value="2">
+        </div>
+
+        <div class="sim-result-panel">
+          帳面總資產 (稅後)
+          <span id="finalTotal" class="sim-final-sum"></span>
+          <small style="color: #ffab91;">實質購買力 (考慮通膨後): <span id="realPower" style="font-weight:700;"></span></small>
+        </div>
+      </div>
+
+      <div class="sim-chart-container">
+        <canvas id="simChart"></canvas>
+      </div>
+    </div>
+
+    <div class="sim-strategy-box" id="insight"></div>
+
+    <div class="nav-btns">
+      <button class="btn btn-dark" onclick="goChapter(4)">← 上一課</button>
+      <button class="btn btn-primary" onclick="showFinalSummary()">結算學習成果 🎉</button>
+    </div>
+  </div>
+
   <div class="chapter" id="ch-final">
     <div class="final-screen">
-      <div class="final-medal">🏆</div>
-      <h2 class="final-title">恭喜完成金融入門課程！</h2>
-      <p class="final-sub">你已掌握理財的核心概念。記住：投資沒有捷徑，但有正確的方向與耐心，時間會是你最大的朋友。</p>
+      <div class="final-medal">🎓</div>
+      <h1 class="final-title">恭喜畢業！</h1>
+      <p class="final-sub">你已經完成了理財入門的所有基礎課程，並透過模擬器親眼見證了時間複利與成本控制的威力。</p>
+
       <div id="score-area"></div>
 
       <div class="final-cards">
         <div class="final-card">
-          <div class="emoji">🏦</div>
-          <div class="fc-title">存款 / 定存</div>
-          <div class="fc-desc">緊急預備金的家，安全第一，利率有限。</div>
+          <div class="emoji">🛡️</div>
+          <div class="fc-title">攻守兼備</div>
+          <div class="fc-desc">你分得清緊急預備金（存款）與增值資產（股票、ETF）的差別了。</div>
         </div>
         <div class="final-card">
-          <div class="emoji">📈</div>
-          <div class="fc-title">股票</div>
-          <div class="fc-desc">成為公司股東，高風險高報酬，需要研究與紀律。</div>
+          <div class="emoji">🔍</div>
+          <div class="fc-title">成本識破者</div>
+          <div class="fc-desc">你明白了內扣費用是如何默默吃掉複利，未來選產品會更聰明。</div>
         </div>
         <div class="final-card">
-          <div class="emoji">🧺</div>
-          <div class="fc-title">ETF / 基金</div>
-          <div class="fc-desc">分散風險的套餐，適合長期定期定額，費率低者優先。</div>
-        </div>
-        <div class="final-card">
-          <div class="emoji">⏰</div>
-          <div class="fc-title">複利 + 時間</div>
-          <div class="fc-desc">越早開始，雪球越大。耐心是最被低估的投資技巧。</div>
+          <div class="emoji">⏳</div>
+          <div class="fc-title">時間的朋友</div>
+          <div class="fc-desc">最好的投資時機是十年前，其次就是現在。</div>
         </div>
       </div>
 
-      <button class="btn btn-dark" onclick="restart()" style="margin-top:8px">↩ 重新學習一遍</button>
+      <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
+        <button class="btn btn-dark" onclick="restart()">重新學習 🔄</button>
+        <button class="btn btn-primary" onclick="goChapter(5)">返回模擬器 📊</button>
+      </div>
     </div>
   </div>
 
-</div><!-- /container -->
+</div>
 
 <script>
-  const totalChapters = 5;
-  let currentChapter = 0;
-  const quizDone = [false, false, false, false, false];
+  // ── CORE QUIZ & PROGRESS LOGIC ──
+  const totalChapters = 5; // 前5課有測驗
+  let quizDone = new Array(totalChapters).fill(false);
   let correctCount = 0;
+  let activeCh = 0;
+  let simChart; // 用於存放模擬器 Chart 實例
 
-  const feedbackMessages = {
-    correct: [
-      "✅ 完全正確！理解得很好，繼續保持。",
-      "✅ 答對了！這個概念你已經掌握。",
-      "✅ 正確！存款保險是台灣投資人的基本保障知識。",
-      "✅ 答對了！定期定額自動化是新手最推薦的入門方式，省心又紀律。",
-      "✅ 完全正確！這個配置兼顧安全性與成長性，是非常健全的起步策略。"
-    ],
-    wrong: [
-      "❌ 再想想看。通膨就像一個看不見的「購買力稅」，利率若低於通膨率，實質上是虧損的。",
-      "❌ 不太對。台灣存款保險每家銀行每人最高保障 300 萬，超過的部分不在保障範圍。",
-      "❌ 試試看其他選項。股息是公司將盈餘分配給股東的方式，與銀行利息的概念不同。",
-      "❌ 再想想。反向 ETF 是高風險工具；複委託是購買美國 ETF 的管道。定期定額才是自動化投資的答案。",
-      "❌ 再考慮看看。全押單一股票風險過高；把所有錢鎖定也會喪失彈性。分層配置才是穩健起點。"
-    ]
-  };
+  function goChapter(idx) {
+    document.querySelectorAll('.chapter').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.chapter-btn').forEach(el => el.classList.remove('active'));
 
-  function answer(qIndex, optIndex, isCorrect) {
-    if (quizDone[qIndex]) return;
-    quizDone[qIndex] = true;
+    // 如果去到結算頁
+    if (idx === 'final') {
+      document.getElementById('ch-final').classList.add('active');
+    } else {
+      document.getElementById(`ch-${idx}`).classList.add('active');
+      const btns = document.querySelectorAll('.chapter-btn');
+      if(btns[idx]) btns[idx].classList.add('active');
+      activeCh = idx;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateProgress();
+  }
 
-    const opts = document.querySelectorAll(`#q${qIndex}-opts .quiz-opt`);
-    opts.forEach(btn => btn.disabled = true);
+  function answer(chIdx, optIdx, isCorrect) {
+    if (quizDone[chIdx]) return;
+    quizDone[chIdx] = true;
 
-    opts[optIndex].classList.add(isCorrect ? 'correct' : 'wrong');
-    if (!isCorrect) {
-      // highlight correct
-      opts.forEach((btn, i) => {
-        if (btn.onclick.toString().includes('true')) btn.classList.add('correct');
-      });
+    const opts = document.querySelectorAll(`#q${chIdx}-opts .quiz-opt`);
+    opts.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === optIdx) {
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+      }
+    });
+
+    const fb = document.getElementById(`q${chIdx}-fb`);
+    fb.className = 'quiz-feedback show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+    if (isCorrect) {
+      fb.textContent = '🎉 答對了！你掌握得很好。';
+      correctCount++;
+    } else {
+      fb.textContent = '❌ 答錯了，再看一遍文章想想看喔！';
     }
 
-    const fb = document.getElementById(`q${qIndex}-fb`);
-    fb.textContent = isCorrect ? feedbackMessages.correct[qIndex] : feedbackMessages.wrong[qIndex];
-    fb.className = `quiz-feedback show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+    const nextBtn = document.getElementById(`q${chIdx}-next`);
+    if (nextBtn) nextBtn.style.display = 'inline-flex';
 
-    if (isCorrect) correctCount++;
-
-    const nextBtn = document.getElementById(`q${qIndex}-next`);
-    nextBtn.style.display = 'inline-flex';
+    const currentNavBtn = document.querySelectorAll('.chapter-nav .chapter-btn')[chIdx];
+    if (currentNavBtn) currentNavBtn.classList.add('done');
 
     updateProgress();
   }
 
-  function goChapter(n) {
-    document.querySelectorAll('.chapter').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.chapter-btn').forEach(b => b.classList.remove('active'));
-
-    if (n === 'final') {
-      document.getElementById('ch-final').classList.add('active');
-    } else {
-      document.getElementById(`ch-${n}`).classList.add('active');
-      document.querySelectorAll('.chapter-btn')[n].classList.add('active');
-      currentChapter = n;
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  function nextChapter(chIdx) {
+    goChapter(chIdx + 1);
   }
 
-  function nextChapter(from) {
-    const btns = document.querySelectorAll('.chapter-btn');
-    btns[from].classList.add('done');
-    btns[from].classList.remove('active');
-
-    const next = from + 1;
-    if (next < totalChapters) {
-      goChapter(next);
-    } else {
-      showFinal();
-    }
+  function updateProgress() {
+    const done = quizDone.filter(Boolean).length;
+    // 總進度包含模擬器，所以除以 6 堂課
+    const pct = Math.round((done / 6) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
   }
 
-  function showFinal() {
-    document.querySelectorAll('.chapter').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.chapter-btn').forEach(b => b.classList.remove('active'));
+  function showFinalSummary() {
+    document.querySelectorAll('.chapter').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.chapter-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('ch-final').classList.add('active');
 
     const scoreArea = document.getElementById('score-area');
     scoreArea.innerHTML = `
       <div class="score-display">
-        測驗成績：<strong>${correctCount} / ${totalChapters}</strong> 題答對
+        基礎課小測驗成績：<strong>${correctCount} / ${totalChapters}</strong> 題答對
       </div>`;
 
     document.getElementById('progressBar').style.width = '100%';
@@ -1449,7 +1253,7 @@
     quizDone.fill(false);
     correctCount = 0;
 
-    // Reset quiz UI
+    // 重置所有測驗
     for (let i = 0; i < totalChapters; i++) {
       const opts = document.querySelectorAll(`#q${i}-opts .quiz-opt`);
       opts.forEach(btn => {
@@ -1462,17 +1266,106 @@
       if (nextBtn) nextBtn.style.display = 'none';
     }
 
-    document.querySelectorAll('.chapter-btn').forEach(b => b.classList.remove('done', 'active'));
+    document.querySelectorAll('.chapter-nav .chapter-btn').forEach(b => b.classList.remove('done', 'active'));
     goChapter(0);
     updateProgress();
   }
 
-  function updateProgress() {
-    const done = quizDone.filter(Boolean).length;
-    const pct = Math.round((done / totalChapters) * 100);
-    document.getElementById('progressBar').style.width = pct + '%';
-    document.getElementById('progressPct').textContent = pct + '%';
+  // ── SIMULATOR CALCULATION ENGINE ──
+  function runSimulation() {
+    const initSum = parseInt(document.getElementById('initSum').value);
+    const monthly = parseInt(document.getElementById('monthly').value);
+    const rawRate = parseFloat(document.getElementById('rate').value);
+    const rawCost = parseFloat(document.getElementById('cost').value);
+    const rawInf = parseFloat(document.getElementById('inflation').value);
+    const years = parseInt(document.getElementById('years').value);
+    
+    // 月淨報酬率 (年報酬扣除管理費後除以12)
+    const netRate = (rawRate - rawCost) / 100 / 12;
+
+    // 更新各滑桿右側數值標籤
+    document.getElementById('v1').innerText = initSum.toLocaleString();
+    document.getElementById('v2').innerText = monthly.toLocaleString();
+    document.getElementById('v3').innerText = rawRate + '%';
+    document.getElementById('v4').innerText = years + '年';
+    document.getElementById('v5').innerText = rawCost + '%';
+    document.getElementById('v6').innerText = rawInf + '%';
+
+    let nominalData = [];
+    let realData = [];
+    let labels = [];
+    let currentNominal = initSum;
+
+    for (let i = 0; i <= years; i++) {
+        labels.push('第' + i + '年');
+        nominalData.push(Math.round(currentNominal));
+        // 實質購買力：資產金額 / (1 + 年通膨率)^年數
+        realData.push(Math.round(currentNominal / Math.pow(1 + rawInf / 100, i)));
+        
+        for (let m = 0; m < 12; m++) {
+            currentNominal = (currentNominal + monthly) * (1 + netRate);
+        }
+    }
+
+    // 渲染總值面板
+    document.getElementById('finalTotal').innerText = 'NT$ ' + nominalData[nominalData.length - 1].toLocaleString();
+    document.getElementById('realPower').innerText = 'NT$ ' + realData[realData.length - 1].toLocaleString();
+
+    // 專家策略導讀演算法
+    let insight = "<b>[模擬器專家策略診斷報告]</b><br>";
+    const realReturn = rawRate - rawCost - rawInf;
+
+    if (rawCost > 1.2) insight += "❌ <b>費用黑洞：</b>您的內扣費用率過高（主動型基金常見），將會嚴重吞噬您的長期複利財富。<br>";
+    else if (rawCost < 0.4) insight += "✅ <b>低摩擦運行：</b>費用極低（優質被動型 ETF 特色），您的複利斜率正以最佳效率運作。<br>";
+
+    if (realReturn <= 0) insight += "⚠️ <b>購買力歸零警報：</b>您的預期回報已被成本與通膨完全吃光！實質資產正在縮水，請考慮優化標的。<br>";
+    else if (realReturn < 3) insight += "💡 <b>增長緩慢：</b>扣除通膨與成本後的實質回報僅 " + realReturn.toFixed(1) + "%，需擴大本金或拉高預期標的回報。<br>";
+
+    if (years < 15) insight += "⏳ <b>時間斜率低：</b>目前的財富增長主要依賴您的『儲蓄投入』，複利引擎尚未真正進入陡峭增長區。<br>";
+    else insight += "🎯 <b>時間紅利釋放：</b>長期持有讓複利引擎完全啟動，後期曲線明顯上揚，這正是滾大雪球的核心策略。";
+
+    document.getElementById('insight').innerHTML = insight;
+
+    // 渲染或更新 Chart.js 圖表
+    const ctx = document.getElementById('simChart').getContext('2d');
+    if (simChart) simChart.destroy();
+    
+    simChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: '帳面金額 (稅後)', data: nominalData, borderColor: '#C8622A', backgroundColor: 'rgba(200,98,42,0.06)', fill: true, tension: 0.2 },
+                { label: '實質購買力 (扣除通膨)', data: realData, borderColor: '#1D4E89', borderDash: [5, 5], fill: false, tension: 0.2 }
+            ]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { position: 'top', labels: { font: { family: 'Noto Sans TC' } } } 
+            },
+            scales: {
+                y: { ticks: { font: { family: 'Noto Sans TC' } } },
+                x: { ticks: { font: { family: 'Noto Sans TC' } } }
+            }
+        }
+    });
   }
+
+  // ── INITIALIZATION ──
+  // 採用 window.onload 保護機制，確保 HTML 結構、CSS 與 cdnjs 庫皆完整載入後，再行啟動代碼。
+  window.onload = function() {
+    // 綁定模擬器的輸入滑桿事件
+    document.querySelectorAll('.sim-input-range').forEach(input => {
+      input.addEventListener('input', runSimulation);
+    });
+    
+    // 初始化執行第一次模擬計算與進度更新
+    runSimulation();
+    updateProgress();
+  };
 </script>
+
 </body>
 </html>
