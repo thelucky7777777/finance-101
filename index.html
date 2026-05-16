@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>財務入門 — 從零開始的金融課</title>
+<title>高級財務專案 — 從零開始的金融課與放空模擬實驗室</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <style>
   :root {
     --bg: #FAF7F2;
@@ -25,6 +24,7 @@
     --shadow: 0 2px 16px rgba(26,22,18,0.08);
     --radius: 16px;
     --radius-sm: 8px;
+    --loss-red: #C0392B;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -75,7 +75,7 @@
 
   /* ── MAIN LAYOUT ── */
   .container {
-    max-width: 900px;
+    max-width: 860px;
     margin: 0 auto;
     padding: 40px 24px 80px;
   }
@@ -102,16 +102,8 @@
     gap: 6px;
   }
   .chapter-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .chapter-btn.active {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: #FAF7F2;
-  }
-  .chapter-btn.done {
-    background: var(--green);
-    border-color: var(--green);
-    color: white;
-  }
+  .chapter-btn.active { background: var(--ink); border-color: var(--ink); color: #FAF7F2; }
+  .chapter-btn.done { background: var(--green); border-color: var(--green); color: white; }
   .chapter-btn .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: 0.6; }
 
   /* ── CHAPTER PANEL ── */
@@ -123,421 +115,108 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  .chapter-header {
-    margin-bottom: 32px;
-  }
-  .chapter-tag {
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-  .chapter-title {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1.3;
-    color: var(--ink);
-    margin-bottom: 10px;
-  }
-  .chapter-subtitle {
-    color: var(--ink-muted);
-    font-size: 0.95rem;
-  }
+  .chapter-header { margin-bottom: 32px; }
+  .chapter-tag { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 8px; }
+  .chapter-title { font-family: 'Noto Serif TC', serif; font-size: 2rem; font-weight: 700; line-height: 1.3; color: var(--ink); margin-bottom: 10px; }
+  .chapter-subtitle { color: var(--ink-muted); font-size: 0.95rem; }
 
   /* ── CONTENT CARDS ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px 32px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-  }
-  .card-title {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .card-icon {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-  }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 32px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .card-title { font-family: 'Noto Serif TC', serif; font-size: 1.1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .card-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
   .icon-orange { background: var(--accent-light); }
   .icon-green  { background: var(--green-light); }
   .icon-blue   { background: var(--blue-light); }
   .icon-gold   { background: var(--gold-light); }
+  .icon-dark   { background: var(--ink); color: white; }
 
-  .card p { color: var(--ink); font-size: 0.93rem; margin-bottom: 10px; }
-  .card p:last-child { margin-bottom: 0; }
+  .card p { color: var(--ink); font-size: 0.93rem; margin-bottom: 12px; }
+  .card p strong { color: var(--ink); font-weight: 600; }
+  .card ul { margin-left: 20px; margin-bottom: 12px; font-size: 0.91rem; color: var(--ink); }
+  .card li { margin-bottom: 4px; }
 
-  /* ── ANALOGY BOX ── */
-  .analogy {
-    background: var(--accent-pale);
-    border-left: 4px solid var(--accent);
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    padding: 16px 20px;
-    margin: 16px 0;
-    font-size: 0.9rem;
-  }
-  .analogy-label {
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    margin-bottom: 6px;
-  }
-
-  /* ── HIGHLIGHT BOX ── */
-  .highlight {
-    background: var(--green-light);
-    border-radius: var(--radius-sm);
-    padding: 14px 18px;
-    font-size: 0.88rem;
-    color: var(--green);
-    margin: 12px 0;
-    border: 1px solid #B7E4C7;
-  }
-  .highlight.blue {
-    background: var(--blue-light);
-    color: var(--blue);
-    border-color: #AEC6E8;
-  }
-  .highlight.gold {
-    background: var(--gold-light);
-    color: var(--gold);
-    border-color: #DCC078;
-  }
+  /* ── ANALOGY & HIGHLIGHT ── */
+  .analogy { background: var(--accent-pale); border-left: 4px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 16px 20px; margin: 16px 0; font-size: 0.9rem; }
+  .analogy-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 6px; }
+  .highlight { background: var(--green-light); border-radius: var(--radius-sm); padding: 14px 18px; font-size: 0.88rem; color: var(--green); margin: 12px 0; border: 1px solid #B7E4C7; }
+  .highlight.blue { background: var(--blue-light); color: var(--blue); border-color: #AEC6E8; }
+  .highlight.gold { background: var(--gold-light); color: var(--gold); border-color: #DCC078; }
 
   /* ── COMPARISON TABLE ── */
-  .compare-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 14px;
-    margin: 16px 0;
-  }
-  .compare-item {
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-    text-align: center;
-  }
+  .compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 16px 0; }
+  .compare-item { border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; background: #FFFBF7; }
   .compare-item .label { font-size: 0.75rem; color: var(--ink-muted); margin-bottom: 6px; }
   .compare-item .value { font-family: 'Noto Serif TC', serif; font-size: 1.3rem; font-weight: 700; }
-  .compare-item.accent-border { border-color: var(--accent); }
+  .compare-item.accent-border { border-color: var(--accent); background: #FFF9F5; }
+
+  /* ── SIMULATOR STYLES ── */
+  .sim-input-group { margin-bottom: 20px; }
+  .sim-label-row { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 8px; font-weight: 500; }
+  input[type="range"] { width: 100%; -webkit-appearance: none; background: var(--border); height: 6px; border-radius: 99px; outline: none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--accent); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  .sim-result-panel { background: var(--bg); padding: 22px; border-radius: var(--radius-sm); margin-top: 20px; border: 1px solid var(--border); }
+  .sim-result-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 12px; color: var(--ink); }
+  .sim-result-total { font-size: 1.1rem; font-weight: 700; border-top: 1.5px solid var(--border); padding-top: 12px; margin-bottom: 0; }
+  .sim-message-box { padding: 16px; border-radius: var(--radius-sm); margin-top: 20px; font-size: 0.88rem; line-height: 1.6; border: 1px solid transparent; transition: all 0.3s; text-align: left; }
 
   /* ── RISK METER ── */
-  .risk-meter {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 10px 0;
-    font-size: 0.85rem;
-  }
+  .risk-meter { display: flex; align-items: center; gap: 6px; margin: 10px 0; font-size: 0.85rem; }
   .risk-label { color: var(--ink-muted); min-width: 48px; }
-  .risk-bar {
-    display: flex;
-    gap: 3px;
-  }
-  .risk-dot {
-    width: 18px; height: 8px;
-    border-radius: 99px;
-    background: var(--border);
-  }
+  .risk-bar { display: flex; gap: 3px; }
+  .risk-dot { width: 18px; height: 8px; border-radius: 99px; background: var(--border); }
   .risk-dot.filled-green { background: var(--green); }
   .risk-dot.filled-gold  { background: var(--gold); }
   .risk-dot.filled-red   { background: #C0392B; }
 
   /* ── QUIZ SECTION ── */
-  .quiz-section {
-    background: var(--ink);
-    border-radius: var(--radius);
-    padding: 32px;
-    margin-top: 32px;
-    color: #FAF7F2;
-  }
-  .quiz-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .quiz-badge {
-    background: var(--accent);
-    color: white;
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    padding: 4px 10px;
-    border-radius: 99px;
-    font-weight: 500;
-  }
-  .quiz-title-text {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-  .quiz-q {
-    font-size: 1rem;
-    margin-bottom: 20px;
-    line-height: 1.6;
-    color: #F5F0E8;
-  }
-  .quiz-options {
-    display: grid;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .quiz-opt {
-    background: rgba(255,255,255,0.07);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    border-radius: var(--radius-sm);
-    padding: 14px 18px;
-    cursor: pointer;
-    color: #FAF7F2;
-    font-size: 0.88rem;
-    text-align: left;
-    transition: all 0.2s;
-    font-family: 'Noto Sans TC', sans-serif;
-  }
-  .quiz-opt:hover:not(:disabled) {
-    background: rgba(200,98,42,0.2);
-    border-color: var(--accent);
-  }
-  .quiz-opt.correct {
-    background: rgba(45,106,79,0.4);
-    border-color: #52B788;
-    color: #B7E4C7;
-  }
-  .quiz-opt.wrong {
-    background: rgba(192,57,43,0.3);
-    border-color: #E74C3C;
-    color: #FADBD8;
-  }
+  .quiz-section { background: var(--ink); border-radius: var(--radius); padding: 32px; margin-top: 32px; color: #FAF7F2; }
+  .quiz-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .quiz-badge { background: var(--accent); color: white; font-size: 0.72rem; padding: 4px 10px; border-radius: 99px; font-weight: 500; }
+  .quiz-title-text { font-family: 'Noto Serif TC', serif; font-size: 1rem; font-weight: 600; }
+  .quiz-q { font-size: 1rem; margin-bottom: 20px; line-height: 1.6; color: #F5F0E8; }
+  .quiz-options { display: grid; gap: 12px; margin-bottom: 16px; }
+  .quiz-opt { background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.15); border-radius: var(--radius-sm); padding: 14px 18px; cursor: pointer; color: #FAF7F2; font-size: 0.88rem; text-align: left; transition: all 0.2s; font-family: 'Noto Sans TC', sans-serif; line-height: 1.5; }
+  .quiz-opt:hover:not(:disabled) { background: rgba(200,98,42,0.2); border-color: var(--accent); }
+  .quiz-opt.correct { background: rgba(45,106,79,0.45); border-color: #52B788; color: #B7E4C7; font-weight: 500; }
+  .quiz-opt.wrong { background: rgba(192,57,43,0.35); border-color: #E74C3C; color: #FADBD8; opacity: 0.8; }
   .quiz-opt:disabled { cursor: default; }
-  .quiz-feedback {
-    border-radius: var(--radius-sm);
-    padding: 14px 18px;
-    font-size: 0.88rem;
-    display: none;
-    margin-bottom: 16px;
-  }
+  .quiz-feedback { border-radius: var(--radius-sm); padding: 16px 20px; font-size: 0.88rem; display: none; margin-bottom: 16px; line-height: 1.6; }
   .quiz-feedback.show { display: block; }
-  .quiz-feedback.correct-fb {
-    background: rgba(45,106,79,0.25);
-    border: 1px solid #52B788;
-    color: #B7E4C7;
-  }
-  .quiz-feedback.wrong-fb {
-    background: rgba(192,57,43,0.2);
-    border: 1px solid #E74C3C;
-    color: #FADBD8;
-  }
+  .quiz-feedback.correct-fb { background: rgba(45,106,79,0.25); border: 1px solid #52B788; color: #B7E4C7; }
+  .quiz-feedback.wrong-fb { background: rgba(192,57,43,0.2); border: 1px solid #E74C3C; color: #FADBD8; }
 
   /* ── BUTTONS ── */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: 99px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 500;
-    transition: all 0.2s;
-    text-decoration: none;
-  }
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-  }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 99px; border: none; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; text-decoration: none; }
+  .btn-primary { background: var(--accent); color: white; }
   .btn-primary:hover { background: #B05520; transform: translateY(-1px); }
-  .btn-ghost {
-    background: transparent;
-    border: 1.5px solid rgba(255,255,255,0.25);
-    color: #FAF7F2;
-  }
+  .btn-ghost { background: transparent; border: 1.5px solid rgba(255,255,255,0.25); color: #FAF7F2; margin-top: 10px; }
   .btn-ghost:hover { border-color: rgba(255,255,255,0.5); }
-  .btn-dark {
-    background: var(--ink);
-    color: #FAF7F2;
-  }
-  .btn-dark:hover { background: #2D2720; transform: translateY(-1px); }
-
-  .nav-btns {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 36px;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
 
   /* ── FINAL SCREEN ── */
-  .final-screen {
-    text-align: center;
-    padding: 60px 20px;
-  }
-  .final-medal {
-    font-size: 4rem;
-    margin-bottom: 20px;
-  }
-  .final-title {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 14px;
-  }
-  .final-sub {
-    color: var(--ink-muted);
-    font-size: 0.95rem;
-    max-width: 480px;
-    margin: 0 auto 32px;
-  }
-  .final-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 14px;
-    margin: 32px 0;
-    text-align: left;
-  }
-  .final-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 20px;
-  }
-  .final-card .emoji { font-size: 1.6rem; margin-bottom: 8px; }
-  .final-card .fc-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
-  .final-card .fc-desc { font-size: 0.8rem; color: var(--ink-muted); }
+  .final-screen { text-align: center; padding: 60px 20px; }
+  .final-medal { font-size: 4rem; margin-bottom: 20px; }
+  .final-title { font-family: 'Noto Serif TC', serif; font-size: 2rem; font-weight: 700; margin-bottom: 14px; }
+  .score-display { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: #FAF7F2; border-radius: 99px; padding: 10px 24px; font-size: 1rem; margin-top: 12px; }
+  .score-display strong { color: var(--accent); font-size: 1.3rem; }
 
-  /* ── SCORE PILL ── */
-  .score-display {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--ink);
-    color: #FAF7F2;
-    border-radius: 99px;
-    padding: 8px 20px;
-    font-size: 0.88rem;
-    margin-top: 12px;
-  }
-  .score-display strong { color: var(--accent); }
-
-  /* ── SIMULATOR STYLES ── */
-  .simulator-layout {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-  }
-  .sim-controls {
-    flex: 1;
-    min-width: 300px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .sim-chart-container {
-    flex: 1.3;
-    min-width: 340px;
-    height: 380px;
-    position: relative;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 15px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-  }
-  .sim-control-item {
-    background: var(--surface);
-    padding: 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-  }
-  .sim-control-item.highlight-bg {
-    background: var(--accent-pale);
-    border-color: var(--accent-light);
-  }
-  .sim-label {
-    display: block;
-    font-weight: 600;
-    color: var(--ink);
-    margin-bottom: 6px;
-    font-size: 0.88rem;
-  }
-  .sim-val-tag {
-    float: right;
-    color: var(--accent);
-    font-weight: 700;
-  }
-  .sim-input-range {
-    width: 100%;
-    cursor: pointer;
-    accent-color: var(--accent);
-  }
-  .sim-result-panel {
-    background: var(--ink);
-    color: #FAF7F2;
-    border-radius: var(--radius);
-    padding: 20px;
-    text-align: center;
-    box-shadow: var(--shadow);
-  }
-  .sim-final-sum {
-    font-size: 1.5rem;
-    color: #52B788;
-    font-weight: 700;
-    display: block;
-    margin: 4px 0;
-  }
-  .sim-strategy-box {
-    margin-top: 24px;
-    border-left: 4px solid var(--accent);
-    background: var(--accent-pale);
-    padding: 20px;
-    border-radius: 0 var(--radius) var(--radius) 0;
-    font-size: 0.92rem;
-    line-height: 1.7;
-    box-shadow: var(--shadow);
-    width: 100%;
-  }
-
-  /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     header { padding: 16px 20px; }
     .logo { font-size: 1.2rem; }
     .progress-bar-outer { width: 100px; }
     .container { padding: 24px 16px 60px; }
-    .card { padding: 20px; }
+    .card { padding: 20px 16px; }
     .quiz-section { padding: 22px 18px; }
     .chapter-title { font-size: 1.5rem; }
-    .simulator-layout { flex-direction: column; }
-    .sim-chart-container { height: 300px; min-width: 100%; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">財務 <span>101</span></div>
+  <div class="logo">高級財務特訓 <span>101</span></div>
   <div class="progress-area">
-    <span class="progress-label">學習進度</span>
-    <div class="progress-bar-outer">
-      <div class="progress-bar-inner" id="progressBar"></div>
-    </div>
+    <span class="progress-label">修業進度</span>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
     <span class="progress-pct" id="progressPct">0%</span>
   </div>
 </header>
@@ -545,647 +224,362 @@
 <div class="container">
 
   <nav class="chapter-nav">
-    <button class="chapter-btn active" onclick="goChapter(0)"><span class="dot"></span>第一課：錢的基本概念</button>
-    <button class="chapter-btn" onclick="goChapter(1)"><span class="dot"></span>第二課：存款與定存</button>
-    <button class="chapter-btn" onclick="goChapter(2)"><span class="dot"></span>第三課：股票</button>
-    <button class="chapter-btn" onclick="goChapter(3)"><span class="dot"></span>第四課：ETF 深度教學</button>
-    <button class="chapter-btn" onclick="goChapter(4)"><span class="dot"></span>第五課：我該怎麼選？</button>
-    <button class="chapter-btn" onclick="goChapter(5)"><span class="dot"></span>第六課：策略模擬器</button>
+    <button class="chapter-btn active" onclick="goChapter(0)"><span class="dot"></span>1. 錢的本質</button>
+    <button class="chapter-btn" onclick="goChapter(1)"><span class="dot"></span>2. 存款定存</button>
+    <button class="chapter-btn" onclick="goChapter(2)"><span class="dot"></span>3. 股票機制</button>
+    <button class="chapter-btn" onclick="goChapter(3)"><span class="dot"></span>4. ETF 攻略</button>
+    <button class="chapter-btn" onclick="goChapter(4)"><span class="dot"></span>5. 資產配置</button>
+    <button class="chapter-btn" onclick="goChapter(5)"><span class="dot"></span>6. 放空模擬</button>
   </nav>
 
   <div class="chapter active" id="ch-0">
     <div class="chapter-header">
-      <div class="chapter-tag">第一課 · 基礎概念</div>
-      <h1 class="chapter-title">錢放著不動，會發生什麼事？</h1>
-      <p class="chapter-subtitle">在認識任何金融商品之前，我們先搞清楚三個最重要的概念。</p>
+      <div class="chapter-tag">第一課 · 核心根基</div>
+      <h1 class="chapter-title">金錢的時間價值與隱形小偷</h1>
+      <p class="chapter-subtitle">在學會任何投資之前，你必須看穿名目數字背後的「購買力真實面貌」。</p>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-orange">💰</div>
-        概念一：利率是什麼？
-      </div>
-      <p>簡單說，<strong>利率就是「使用金錢的費用」</strong>。</p>
-      <p>你把錢借給別人，別人要付你租金——這個租金就叫「利息」，利息佔本金的比例就是「利率」。</p>
-      <div class="analogy">
-        <div class="analogy-label">🏠 生活比喻</div>
-        租房子，你每月付租金給房東。你把錢存入銀行，銀行每年付利息給你。邏輯完全一樣——銀行在「租用」你的錢。
-      </div>
-      <div class="compare-grid">
-        <div class="compare-item">
-          <div class="label">存入 100 萬</div>
-          <div class="value" style="color:var(--green)">年利率 2%</div>
-        </div>
-        <div class="compare-item accent-border">
-          <div class="label">一年後領回</div>
-          <div class="value" style="color:var(--accent)">102 萬</div>
-        </div>
-        <div class="compare-item">
-          <div class="label">多賺了</div>
-          <div class="value" style="color:var(--blue)">2 萬元</div>
-        </div>
+      <div class="card-title"><div class="card-icon icon-orange">💰</div>核心觀念一：名目利率 vs 實質利率</div>
+      <p>大眾常說的利率，是指銀行告示牌上的<strong>「名目利率 (Nominal Interest Rate)」</strong>。但是，金錢真正的增長速度必須扣除通貨膨脹，這才是<strong>「實質利率 (Real Interest Rate)」</strong>。</p>
+      <div class="highlight blue">
+        💡 <strong>實質利率大約等於：名目利率 － 通貨膨脹率。</strong><br>
+        如果銀行的存款年利率是 1.5%，而當年的通貨膨脹率是 2.5%，你的實質利率其實是 <strong>-1.0%</strong>。這代表雖然一年後你的銀行帳戶數字變多了，但這筆錢能買到的實際東西反而變少了！
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-gold">📉</div>
-        概念二：通貨膨脹
-      </div>
-      <p><strong>通貨膨脹（通膨）</strong>是指物價隨時間上漲，同樣的錢能買到的東西越來越少。</p>
+      <div class="card-title"><div class="card-icon icon-gold">📉</div>核心觀念二：通貨膨脹的財富重新分配</div>
+      <p>通貨膨脹（通膨）本質上是貨幣購買力的購買力貶損。當社會上總貨幣量增加的速度超過實體商品增加的速度時，物價就會上升。這意味著溫和的通膨是「現金持有者的無形稅收」，而實物資產（如房地產、好企業的股權）則具備抗通膨的天然屬性。</p>
       <div class="analogy">
-        <div class="analogy-label">🍱 生活比喻</div>
-        十年前一個便當 60 元，現在同樣的便當可能要 100 元。你口袋裡那張 100 元紙鈔，「購買力」縮水了。
-      </div>
-      <div class="highlight gold">
-        ⚠️ 台灣近年平均通膨率約 2～3%。如果你的存款利率低於這個數字，你的錢實際上是在「縮水」。
+        <div class="analogy-label">🍱 實務場景</div>
+        若一個便當在十年內從 60 元漲到 110 元，這並非便當變得更奢華，而是貨幣價值萎縮。把錢死死放在沒有利息的抽屜裡，就是任由通膨每天蠶食你的勞動成果。
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-green">⏰</div>
-        概念三：時間的魔法（複利）
-      </div>
-      <p><strong>複利</strong>的意思是：利息也能再生利息。時間越長，效果越驚人。</p>
-      <div class="analogy">
-        <div class="analogy-label">⛄ 生活比喻</div>
-        滾雪球：開始的球很小，但山坡越長，雪球就越大。本金是你的初始雪球，時間是山坡的長度。
-      </div>
-      <div class="highlight">
-        💡 愛因斯坦曾說：複利是世界第八大奇蹟。1 萬元以年利率 7% 複利成長，40 年後變成約 14.97 萬元。
-      </div>
-      <p style="margin-top:12px; color:var(--ink-muted); font-size:0.85rem;">重點外帶：<strong>越早開始投資，你擁有的「時間坡道」越長，複利效果越強大。</strong></p>
+      <div class="card-title"><div class="card-icon icon-green">⏰</div>核心觀念三：複利頻率與「72法則」速算</div>
+      <p>複利（Compound Interest）就是利滾利。除了時間長短外，<strong>複利的頻率</strong>也有影響（按月複利的累積速度會略快於按年複利）。</p>
+      <p>財務學上有一個非常著名且強大的<strong>「72法則」</strong>：用 72 除以你的「年投資報酬率（去掉%後的數字）」，就能快速估算出你的資產**「翻倍」**大約需要多少年。例如，年報酬率如果是 6%，資產翻倍需要 72 / 6 = 12 年。</p>
     </div>
 
     <div class="quiz-section">
-      <div class="quiz-header">
-        <span class="quiz-badge">小測驗</span>
-        <span class="quiz-title-text">第一課理解確認</span>
-      </div>
-      <p class="quiz-q">如果通膨率是 3%，而你的存款年利率是 1%，一年後你的錢的「實際購買力」變化是？</p>
+      <div class="quiz-header"><span class="quiz-badge">實戰情境題</span><span class="quiz-title-text">第一課深度理解確認</span></div>
+      <p class="quiz-q">小美將 50 萬元投入一個標榜「每年穩定名目報酬率 5%」的長線資產。然而，這段期間市場面臨平均 2% 的通貨膨脹率。如果小美希望在「實質購買力」上讓這筆 50 萬資產翻倍（即實質購買力變成相當於現在的 100 萬），請問根據實質利率與財務學的「72法則」，她大約需要耐心等待多少年？</p>
       <div class="quiz-options" id="q0-opts">
-        <button class="quiz-opt" onclick="answer(0,0,false)">A. 增加了，因為有利息</button>
-        <button class="quiz-opt" onclick="answer(0,1,true)">B. 減少了，因為通膨比利率高</button>
-        <button class="quiz-opt" onclick="answer(0,2,false)">C. 不變，利息剛好抵銷通膨</button>
+        <button class="quiz-opt" onclick="answer(0,0,false)">A. 約 14.4 年（以 72 / 名目報酬率 5% 直接計算）</button>
+        <button class="quiz-opt" onclick="answer(0,1,true)">B. 約 24.0 年（以 72 / 實質利率 3% 計算）</button>
+        <button class="quiz-opt" onclick="answer(0,2,false)">C. 約 36.0 年（以 72 / 通貨膨脹率 2% 計算）</button>
       </div>
       <div class="quiz-feedback" id="q0-fb"></div>
-      <div class="nav-btns">
-        <div></div>
-        <button class="btn btn-primary" onclick="nextChapter(0)" id="q0-next" style="display:none">繼續下一課 →</button>
-      </div>
+      <button class="btn btn-ghost" onclick="nextChapter(0)" id="q0-next" style="display:none">通過！進入第二課 →</button>
     </div>
   </div>
 
   <div class="chapter" id="ch-1">
     <div class="chapter-header">
-      <div class="chapter-tag">第二課 · 最安全的起點</div>
-      <h1 class="chapter-title">存款與定存</h1>
-      <p class="chapter-subtitle">最多台灣人使用、也是最容易理解的金融工具。</p>
+      <div class="chapter-tag">第二課 · 防禦型資產</div>
+      <h1 class="chapter-title">銀行存款的隱藏細節與實務戰術</h1>
+      <p class="chapter-subtitle">人人都有存款，但鮮少有人知道定存的種類差異與法律保障邊界。</p>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-green">🏦</div>
-        活期存款 vs 定期存款
-      </div>
-      <p><strong>活期存款</strong>：隨時可以存、隨時可以領，像一個隨身的零錢包。利率很低（通常 0.01～0.1%）。</p>
-      <p><strong>定期存款（定存）</strong>：把錢鎖住一段時間（1個月～3年），換取較高的利率。中途解約通常會損失部分利息。</p>
-      <div class="compare-grid">
-        <div class="compare-item">
-          <div class="label">活期利率（台灣）</div>
-          <div class="value" style="color:var(--ink-muted)">約 0.01%</div>
-        </div>
-        <div class="compare-item accent-border">
-          <div class="label">1年定存利率（台灣）</div>
-          <div class="value" style="color:var(--accent)">約 1.5～2%</div>
-        </div>
+      <div class="card-title"><div class="card-icon icon-green">🏦</div>細節一：定期存款 vs 定期儲蓄存款</div>
+      <p>在台灣的銀行系統中，這兩者有顯著差異：</p>
+      <ul>
+        <li><strong>定期存款</strong>：一般是未滿一年（如3個月、6個月）的短期定存，多採用<strong>單利</strong>計息，利息按月領取。</li>
+        <li><strong>定期儲蓄存款</strong>：必須是一年以上（如1年～3年）才可辦理，可以選擇「整存整付」，此時銀行會自動幫你用<strong>「月複利」</strong>利滾利，回報率高於一般定存。</li>
+      </ul>
+      <div class="highlight gold">
+        ⚠️ <strong>中途解約代價</strong>：定存如果中途緊急解約，雖然絕對不會虧損到本金，但利息通常會被打<strong>八折</strong>，且會改依實際存滿的期間對應之較低牌告利率重新計算。
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-blue">🛡️</div>
-        為什麼存款這麼安全？
-      </div>
-      <p>台灣的《存款保險條例》規定：每人在每家銀行的存款，最高受<strong>新台幣 300 萬元</strong>的保障。</p>
-      <p>即使銀行倒閉（極罕見），政府透過存款保險機制保障你的存款。</p>
+      <div class="card-title"><div class="card-icon icon-blue">🛡️</div>細節二：定存拆單法的實務防禦</div>
+      <p>高資產族群或聰明的投資人通常不會把一大筆錢（如200萬）直接做單一單定存，而是會採取「拆單法」（拆成5單各40萬）。</p>
+      <p><strong>好處一（流動性調度）</strong>：若臨時需要40萬急用，只需解約其中一單，其餘160萬依然享有完整的定存利息回報。<br>
+      <strong>好處二（避稅與補充保費）</strong>：台灣法規規定，單筆定存利息若達到新台幣 <strong>20,000 元</strong>（含）以上，銀行必須代扣 <strong>10% 的所得稅</strong>以及 <strong>2.11% 的二代健保補充保費</strong>。透過拆單可以完美規避這個門檻。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-icon icon-orange">⚖️</div>細節三：中央存款保險的邊界</div>
+      <p>台灣依法設有中央存款保險（CDIC），法規保障上限是<strong>每人在每家銀行最高新台幣 300 萬元</strong>。</p>
       <div class="highlight blue">
-        📌 存款的缺點：利率有限，在通膨環境下，實際購買力很可能仍在緩慢縮水。
+        📌 <strong>重要保障範疇細則</strong>：這個 300 萬上限是指你在該銀行的「台幣活存 + 台幣定存 + 外幣存款」的<strong>本金與利息總和</strong>。特別注意：透過該銀行財富管理專員購買的「海內外基金、投資型保單、海外股票」，**完全不屬於**存款保險的保障範圍，銀行若倒閉，存保公司是不予理賠的。
       </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-orange">📊</div>
-        風險與報酬評估
-      </div>
-      <div class="risk-meter">
-        <span class="risk-label">Risk</span>
-        <div class="risk-bar">
-          <div class="risk-dot filled-green"></div>
-          <div class="risk-dot"></div>
-          <div class="risk-dot"></div>
-          <div class="risk-dot"></div>
-          <div class="risk-dot"></div>
-        </div>
-        <span style="font-size:0.82rem; color:var(--green)">極低</span>
-      </div>
-      <div class="risk-meter">
-        <span class="risk-label">Return</span>
-        <div class="risk-bar">
-          <div class="risk-dot filled-green"></div>
-          <div class="risk-dot"></div>
-          <div class="risk-dot"></div>
-          <div class="risk-dot"></div>
-          <div class="risk-dot"></div>
-        </div>
-        <span style="font-size:0.82rem; color:var(--green)">極低</span>
-      </div>
-      <p style="margin-top:14px; font-size:0.88rem;">適合：緊急預備金、短期內會用到的錢、完全不能承受任何損失的資金。</p>
     </div>
 
     <div class="quiz-section">
-      <div class="quiz-header">
-        <span class="quiz-badge">小測驗</span>
-        <span class="quiz-title-text">第二課理解確認</span>
-      </div>
-      <p class="quiz-q">小明有 500 萬元想全部存入同一家銀行，如果這家銀行倒閉，存款保險會保障多少？</p>
+      <div class="quiz-header"><span class="quiz-badge">實戰情境題</span><span class="quiz-title-text">第二課深度理解確認</span></div>
+      <p class="quiz-q">老張在「富貴銀行」擁有個人台幣活存 100 萬元、一年期定期儲蓄存款 250 萬元。兩年後，富貴銀行因經營不善宣告倒閉，此時老張的定存帳戶內已累積未領利息 5 萬元。此外，老張曾透過富貴銀行的理財專員購買了價值 100 萬元的海外科技基金。請問在台灣中央存款保險制度的理賠規範下，老張最終能從小額存保公司獲得多少金額的全額保障賠付？</p>
       <div class="quiz-options" id="q1-opts">
-        <button class="quiz-opt" onclick="answer(1,0,false)">A. 全部 500 萬</button>
-        <button class="quiz-opt" onclick="answer(1,1,true)">B. 最高 300 萬</button>
-        <button class="quiz-opt" onclick="answer(1,2,false)">C. 完全沒有保障</button>
+        <button class="quiz-opt" onclick="answer(1,0,false)">A. 455 萬元（存款本利和 355 萬 + 基金 100 萬全部賠付）</button>
+        <button class="quiz-opt" onclick="answer(1,1,false)">B. 355 萬元（存款本利和 355 萬全額理賠，排除海外基金）</button>
+        <button class="quiz-opt" onclick="answer(1,2,true)">C. 300 萬元（受限於單一銀行最高 300 萬上限，海外基金不保）</button>
       </div>
       <div class="quiz-feedback" id="q1-fb"></div>
-      <div class="nav-btns">
-        <button class="btn btn-dark" onclick="goChapter(0)">← 上一課</button>
-        <button class="btn btn-primary" onclick="nextChapter(1)" id="q1-next" style="display:none">繼續下一課 →</button>
-      </div>
+      <button class="btn btn-ghost" onclick="nextChapter(1)" id="q1-next" style="display:none">通過！進入第三課 →</button>
     </div>
   </div>
 
   <div class="chapter" id="ch-2">
     <div class="chapter-header">
-      <div class="chapter-tag">第三課 · 成為公司股東</div>
-      <h1 class="chapter-title">股票是什麼？</h1>
-      <p class="chapter-subtitle">你可以成為台積電、統一企業的「股東」，這代表什麼意思？</p>
+      <div class="chapter-tag">第三課 · 股權投資</div>
+      <h1 class="chapter-title">股票市場的盈虧本質與除權息泡沫</h1>
+      <p class="chapter-subtitle">買股票不只是買一個會變動的數字，而是買下一家企業的一部分所有權。</p>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-orange">📜</div>
-        股票的本質
-      </div>
-      <p>公司需要資金成長，一種方式是把公司切成很多等份，賣給大眾——每一份就叫一張<strong>「股票」</strong>。</p>
-      <p>買了股票，你就成為這家公司的<strong>股東</strong>，擁有按比例的公司所有權。</p>
+      <div class="card-title"><div class="card-icon icon-orange">📜</div>機制一：什麼是除權息交易？</div>
+      <p>當公司賺錢並決定將獲利分配給股東時，這稱為配股配息。然而，許多新手會誤以為這是「白拿一筆利息」。</p>
+      <p>實務上，在<strong>除息交易日（Ex-Dividend Date）</strong>當天，公司的股票價格會<strong>等幅扣除</strong>發放的現金股利。例如：一家股價 100 元的公司配發 5 元股息，除息當天一早開盤參考價會直接變成 <strong>95 元</strong>。</p>
       <div class="analogy">
-        <div class="analogy-label">🍕 生活比喻</div>
-        開一家披薩店需要 100 萬。你出 10 萬，佔 10% 的股份。店賺錢，你拿 10% 的利潤；店虧損，你也承擔 10% 的損失。上市公司的股票，就是把這個邏輯放大到成千上萬個股東。
+        <div class="analogy-label">🍕 數學本質</div>
+        除息當下，你的資產只是從「100元的股票」變成了「95元的股票 ＋ 5元的現金股利」，你的總資產價值此時**完全沒有增加**。
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-green">💹</div>
-        股票怎麼賺錢？
-      </div>
-      <p><strong>方式一：資本利得</strong>——股價上漲後賣出，賺取差價。例：用 50 元買進，漲到 80 元賣出，每股賺 30 元。</p>
-      <p><strong>方式二：股息（現金股利）</strong>——公司每年將部分盈餘分配給股東，類似銀行利息但金額浮動。</p>
-      <div class="highlight">
-        💡 台灣許多投資人喜愛「存股」策略：長期持有高股息個股，靠穩定的股息創造被動收入。
-      </div>
+      <div class="card-title"><div class="card-icon icon-green">💹</div>機制二：真正獲利的關鍵——填息 vs 貼息</div>
+      <p>只有當該公司的股價在除息後，因為基本面良好，再度受到買盤青睞而從 95 元漲回 100 元時，這個過程稱為<strong>「填息 (Refilling the dividend)」</strong>，那 5 元的股息才真正落入你的口袋。如果除息後股價一路向下跌（稱為貼息），你反而是<strong>「賺了股息、賠了價差」</strong>，甚至面臨虧損。</p>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-blue">⚡</div>
-        股票的風險在哪？
-      </div>
-      <p>股價會因為：公司營運狀況、整體經濟、市場情緒、國際局勢等因素<strong>每天上下波動</strong>。</p>
-      <p>最壞的情況：公司倒閉，股票價值歸零。</p>
-      <div class="highlight gold">
-        ⚠️ 關鍵認知：短期股價難以預測。即使是專業投資人也常常看錯。切忌借錢買股票。
-      </div>
-      <div class="risk-meter" style="margin-top:16px">
-        <span class="risk-label">Risk</span>
-        <div class="risk-bar">
-          <div class="risk-dot filled-red"></div>
-          <div class="risk-dot filled-red"></div>
-          <div class="risk-dot filled-red"></div>
-          <div class="risk-dot filled-red"></div>
-          <div class="risk-dot"></div>
-        </div>
-        <span style="font-size:0.82rem; color:#C0392B">高</span>
-      </div>
-      <div class="risk-meter">
-        <span class="risk-label">Return</span>
-        <div class="risk-bar">
-          <div class="risk-dot filled-gold"></div>
-          <div class="risk-dot filled-gold"></div>
-          <div class="risk-dot filled-gold"></div>
-          <div class="risk-dot filled-gold"></div>
-          <div class="risk-dot"></div>
-        </div>
-        <span style="font-size:0.82rem; color:var(--gold)">高（但不確定）</span>
-      </div>
+      <div class="card-title"><div class="card-icon icon-blue">⚡</div>機制三：本益比的陷阱與高殖利率評價誤區</div>
+      <p>許多人盲目存股，專挑「現金股利殖利率 (Dividend Yield = 股利 / 股價)」高達 8% 以上的股票，這往往會落入<strong>價值陷阱 (Value Trap)</strong>。有些公司之所以殖利率高，是因為產業即將夕陽化導致股價暴跌，或者是靠變賣祖產發放一次性的特許股利。若企業失去長期盈餘增長能力 (EPS 衰退)，高本益比或高殖利率只是海市蜃樓。</p>
     </div>
 
     <div class="quiz-section">
-      <div class="quiz-header">
-        <span class="quiz-badge">小測驗</span>
-        <span class="quiz-title-text">第三課理解確認</span>
-      </div>
-      <p class="quiz-q">小華買了某公司股票。這家公司今年獲利豐收，決定分配盈餘給股東。小華能收到什麼？</p>
+      <div class="quiz-header"><span class="quiz-badge">實戰情境題</span><span class="quiz-title-text">第三課深度理解確認</span></div>
+      <p class="quiz-q">阿明在股價 120 元時買進了「穩健化工」的股票 1 張，該公司隨後宣布每股配發現金股利 8 元。除息交易日當天，若不考慮整體市場隨機波動，穩健化工的開盤參考價應為多少？此外，如果阿明設定這筆投資最終必須達到 20% 的「實際投資報酬率 (ROI)」，該股票未來市價必須在填息後一路上漲到多少元？</p>
       <div class="quiz-options" id="q2-opts">
-        <button class="quiz-opt" onclick="answer(2,0,false)">A. 銀行利息</button>
-        <button class="quiz-opt" onclick="answer(2,1,true)">B. 股息（現金股利）</button>
-        <button class="quiz-opt" onclick="answer(2,2,false)">C. 存款保險理賠</button>
+        <button class="quiz-opt" onclick="answer(2,0,false)">A. 開盤參考價為 120 元；市價必須上漲到 144 元</button>
+        <button class="quiz-opt" onclick="answer(2,1,false)">B. 開盤參考價為 112 元；市價必須上漲到 144 元</button>
+        <button class="quiz-opt" onclick="answer(2,2,true)">C. 開盤參考價為 112 元；市價必須上漲到 136 元</button>
       </div>
       <div class="quiz-feedback" id="q2-fb"></div>
-      <div class="nav-btns">
-        <button class="btn btn-dark" onclick="goChapter(1)">← 上一課</button>
-        <button class="btn btn-primary" onclick="nextChapter(2)" id="q2-next" style="display:none">繼續下一課 →</button>
-      </div>
+      <button class="btn btn-ghost" onclick="nextChapter(2)" id="q2-next" style="display:none">通過！進入第四課 →</button>
     </div>
   </div>
 
   <div class="chapter" id="ch-3">
     <div class="chapter-header">
-      <div class="chapter-tag">第四課 · ETF 完整攻略</div>
-      <h1 class="chapter-title">ETF 深度教學</h1>
-      <p class="chapter-subtitle">從概念、種類、實際標的，到買賣操作——一次學完。</p>
+      <div class="chapter-tag">第四課 · 一籃子資產</div>
+      <h1 class="chapter-title">ETF 的隱形成本與特殊型致命盲點</h1>
+      <p class="chapter-subtitle">大家都買 ETF，但極少新手注意到每天被扣除的內扣費用與結構性風險。</p>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-orange">📦</div>
-        ETF 是什麼？（快速複習）
-      </div>
-      <p><strong>ETF（Exchange Traded Fund，指數股票型基金）</strong>是一種在證券交易所上市買賣的基金，像股票一樣可以隨時交易，但同時持有一籃子資產，達到分散風險的效果。</p>
-      <div class="analogy">
-        <div class="analogy-label">🍱 生活比喻</div>
-        不需要每道菜都點，直接點「招牌套餐」——一次吃到所有主打料理。買一張 ETF，就像買下一整個投資組合的縮影。
-      </div>
-      <div class="compare-grid">
-        <div class="compare-item">
-          <div class="label">主動基金管理費</div>
-          <div class="value" style="color:var(--gold)">1～2%/年</div>
-        </div>
-        <div class="compare-item accent-border">
-          <div class="label">被動 ETF 管理費</div>
-          <div class="value" style="color:var(--green)">0.03～0.5%/年</div>
-        </div>
+      <div class="card-title"><div class="card-icon icon-orange">📦</div>盲點一：看得到的費用 vs 吃不到的「總費用率」</div>
+      <p>ETF（指數股票型基金）雖然像股票一樣在交易所買賣，但它在本質上仍是一檔基金。既然是基金，就存在著經理費、保管費，以及頻繁調整成分股時產生的證券交易手續費與稅金。這些統稱為<strong>「總費用率（Expense Ratio，或稱內扣費用）」</strong>。</p>
+      <div class="highlight gold">
+        ⚠️ <strong>負複利效應</strong>：內扣費用是不會發帳單給你的，投信公司每天會直接從 ETF 的「淨值」中直接扣除。市值型 ETF 的總費用率通常極低（如 0.15%～0.3%），而高股息型或主題型 ETF 的費用率往往較高（常達 0.5%～1.0% 以上）。長期持有 20 年下來，這將對總報酬產生巨大的侵蝕效應。
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-blue">🗂️</div>
-        ETF 的四大種類
-      </div>
-
-      <div style="display:flex; flex-direction:column; gap:14px; margin-top:4px">
-        <div style="border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:16px 18px;">
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px">
-            <span style="background:var(--green-light); color:var(--green); font-size:0.72rem; font-weight:600; padding:3px 10px; border-radius:99px; letter-spacing:0.05em">股票型</span>
-            <span style="font-weight:600; font-size:0.92rem">追蹤股市指數</span>
-          </div>
-          <p style="font-size:0.87rem; margin:0">追蹤特定股票指數（如台灣 50、S&P 500），持有該指數內的所有成分股。報酬與股市連動，是最主流的 ETF 類型。</p>
-          <div style="font-size:0.8rem; color:var(--ink-muted); margin-top:6px">代表：0050、SPY、QQQ</div>
-        </div>
-
-        <div style="border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:16px 18px;">
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px">
-            <span style="background:var(--blue-light); color:var(--blue); font-size:0.72rem; font-weight:600; padding:3px 10px; border-radius:99px; letter-spacing:0.05em">債券型</span>
-            <span style="font-weight:600; font-size:0.92rem">追蹤債券指數</span>
-          </div>
-          <p style="font-size:0.87rem; margin:0">持有政府或企業債券，波動性較股票型低，適合追求穩定收益的投資人，通常用來平衡投資組合風險。</p>
-          <div style="font-size:0.8rem; color:var(--ink-muted); margin-top:6px">代表：00679B（元大美債20年）、BND</div>
-        </div>
-
-        <div style="border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:16px 18px;">
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px">
-            <span style="background:var(--gold-light); color:var(--gold); font-size:0.72rem; font-weight:600; padding:3px 10px; border-radius:99px; letter-spacing:0.05em">REITs 型</span>
-            <span style="font-weight:600; font-size:0.92rem">不動產投資信託</span>
-          </div>
-          <p style="font-size:0.87rem; margin:0">持有商辦、購物中心、倉儲等不動產資產，定期發放租金收益，讓小額投資人也能參與不動產市場。</p>
-          <div style="font-size:0.8rem; color:var(--ink-muted); margin-top:6px">代表：00712（復華富時不動產）、VNQ</div>
-        </div>
-
-        <div style="border:1.5px solid #FADBD8; border-radius:var(--radius-sm); padding:16px 18px; background:#FEF5F5">
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px">
-            <span style="background:#FADBD8; color:#C0392B; font-size:0.72rem; font-weight:600; padding:3px 10px; border-radius:99px; letter-spacing:0.05em">⚠️ 反向／槓桿型</span>
-            <span style="font-weight:600; font-size:0.92rem">高風險、不適合新手</span>
-          </div>
-          <p style="font-size:0.87rem; margin:0; color:#922B21"><strong>反向 ETF</strong>：指數跌，它漲；<strong>槓桿 ETF</strong>：放大 2 倍報酬（也放大 2 倍虧損）。設計上用於短期交易，長期持有幾乎必然虧損（因每日複利損耗），<strong>初學者請勿碰</strong>。</p>
-        </div>
-      </div>
+      <div class="card-title"><div class="card-icon icon-blue">🗂️</div>盲點二：折價與溢價的市場瘋狂</div>
+      <p>ETF 同時擁有兩個價格：一個是成分股真實價值的<strong>「淨值 (NAV)」</strong>，另一個是交易市場上大家搓合出來的<strong>「市價」</strong>。</p>
+      <ul>
+        <li><strong>溢價 (Premium)</strong>：市價 ＞ 淨值。代表市場過熱，你用**過貴**的價格買進。</li>
+        <li><strong>折價 (Discount)</strong>：市價 ＜ 淨值。代表市場冷清，你用**便宜**的折扣價買進成分股。</li>
+      </ul>
+      <p>初學者切忌在新聞大肆報導時，盲目搶購嚴重溢價（如溢價大於 1%）的 ETF，否則往往會立刻套牢。</p>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-green">🇹🇼</div>
-        台灣常見 ETF 介紹
-      </div>
-
-      <p style="font-size:0.82rem; color:var(--ink-muted); margin-bottom:16px">以下數據僅供學習參考，費用率與配息政策可能隨時調整，實際交易前請至各投信官網確認最新資訊。</p>
-
-      <div style="font-size:0.8rem; font-weight:600; letter-spacing:0.08em; color:var(--accent); margin-bottom:10px; padding-bottom:6px; border-bottom:2px solid var(--accent-light)">▌ 被動型（追蹤指數）</div>
-
-      <div style="overflow-x:auto; margin-bottom:20px">
-        <table style="width:100%; border-collapse:collapse; font-size:0.84rem; min-width:560px">
-          <thead>
-            <tr style="background:var(--bg); border-bottom:1.5px solid var(--border)">
-              <th style="padding:10px 10px; text-align:left; font-weight:600">代號 / 名稱</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:600">追蹤指數</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:600">配息頻率</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:600">費用率</th>
-              <th style="padding:10px 8px; text-align:left; font-weight:600">特色</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">0050<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">元大台灣50</span></td>
-              <td style="padding:10px 8px; text-align:center">台灣前50大</td>
-              <td style="padding:10px 8px; text-align:center">每年2次</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">0.43%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">台灣最具代表性，台積電佔比最高，成立最久、流動性最佳</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">0056<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">元大高股息</span></td>
-              <td style="padding:10px 8px; text-align:center">台灣高股息</td>
-              <td style="padding:10px 8px; text-align:center">每年1次</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">0.66%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">篩選預測高股息個股，適合注重股息收入者</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">00878<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">國泰永續高股息</span></td>
-              <td style="padding:10px 8px; text-align:center">MSCI台灣ESG永續高股息</td>
-              <td style="padding:10px 8px; text-align:center">每季配息</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">0.65%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">ESG篩選＋高股息，季配息現金流穩定，近年最熱門之一</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">006208<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">富邦台灣50</span></td>
-              <td style="padding:10px 8px; text-align:center">台灣前50大</td>
-              <td style="padding:10px 8px; text-align:center">每年2次</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--green)">0.23%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">與0050追蹤同一指數，費用率更低，適合長期存股</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">00830<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">國泰台灣5G+</span></td>
-              <td style="padding:10px 8px; text-align:center">ICE台灣5G+指數</td>
-              <td style="padding:10px 8px; text-align:center">每季配息</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--gold)">0.72%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">聚焦5G相關產業，主題式ETF，波動較大</td>
-            </tr>
-            <tr>
-              <td style="padding:10px; font-weight:700">00981A<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">台新臺灣IC設計</span></td>
-              <td style="padding:10px 8px; text-align:center">台灣IC設計指數</td>
-              <td style="padding:10px 8px; text-align:center">每季配息</td>
-              <td style="padding:10px 8px; text-align:center; color:var(--gold)">0.75%</td>
-              <td style="padding:10px 8px; font-size:0.82rem">聚焦IC設計族群，如聯發科、聯詠等，主題集中風險較高</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div style="font-size:0.8rem; font-weight:600; letter-spacing:0.08em; color:var(--blue); margin-bottom:10px; padding-bottom:6px; border-bottom:2px solid var(--blue-light)">▌ 主動式 ETF（經理人主動選股）</div>
-      <div class="highlight blue" style="margin-bottom:14px">
-        📌 主動式 ETF 由基金經理人主動選股，不追蹤固定指數，目標是超越市場表現。費用率通常高於被動型，但仍低於傳統共同基金。
-      </div>
-
-      <div style="overflow-x:auto">
-        <table style="width:100%; border-collapse:collapse; font-size:0.84rem; min-width:560px">
-          <thead>
-            <tr style="background:var(--bg); border-bottom:1.5px solid var(--border)">
-              <th style="padding:10px; text-align:left; font-weight:600">代號 / 名稱</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:600">選股策略</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:600">配息頻率</th>
-              <th style="padding:10px 8px; text-align:left; font-weight:600">特色</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:10px; font-weight:700">00936<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">台新臺灣永續高息中小</span></td>
-              <td style="padding:10px 8px; text-align:center">ESG篩選＋高息中小型股</td>
-              <td style="padding:10px 8px; text-align:center">每月配息</td>
-              <td style="padding:10px 8px; font-size:0.82rem">中小型成分股動能強，但經理人主動調整可能帶來超額報酬或額外風險</td>
-            </tr>
-            <tr>
-              <td style="padding:10px; font-weight:700">00947B<br><span style="font-weight:400; font-size:0.78rem; color:var(--ink-muted)">台新美國優選非投資等級債</span></td>
-              <td style="padding:10px 8px; text-align:center">精選美國高收益債券</td>
-              <td style="padding:10px 8px; text-align:center">每季配息</td>
-              <td style="padding:10px 8px; font-size:0.82rem">非投資等級債主動管理，由經理人防範違約風險、追求較高配息收益</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-gold">🛒</div>
-        如何開始買賣 ETF？
-      </div>
-      <p>買賣 ETF 的流程跟買普通股票完全一樣，非常親民：</p>
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin:16px 0;">
-        <div style="background:var(--bg); padding:16px; border-radius:var(--radius-sm)">
-          <div style="font-weight:600; font-size:0.9rem; color:var(--accent); margin-bottom:4px">1. 證券開戶</div>
-          <div style="font-size:0.82rem; color:var(--ink-muted)">攜帶身分證件到證券商（或線上）開立「證券戶」與「交割銀行戶」。</div>
-        </div>
-        <div style="background:var(--bg); padding:16px; border-radius:var(--radius-sm)">
-          <div style="font-weight:600; font-size:0.9rem; color:var(--accent); margin-bottom:4px">2. 下單交易</div>
-          <div style="font-size:0.82rem; color:var(--ink-muted)">打開證券商 App，輸入 ETF 代號（如 0050），即可在股市交易時間（9:00-13:30）隨時買賣。</div>
-        </div>
-        <div style="background:var(--bg); padding:16px; border-radius:var(--radius-sm)">
-          <div style="font-weight:600; font-size:0.9rem; color:var(--accent); margin-bottom:4px">3. 交易單位</div>
-          <div style="font-size:0.82rem; color:var(--ink-muted)">可買一張（1000股）或利用「定期定額 / 盤後盤中零股」只買 1 股，最低只要幾百元就能開始。</div>
-        </div>
-      </div>
+      <div class="card-title"><div class="card-icon icon-gold">🛑</div>盲點三：槓桿與反向 ETF 的「每日平衡」與複利損耗</div>
+      <p>市面上許多「正2（雙倍槓桿）」或「反1（反向做空）」的特殊型 ETF。這類商品的說明書內有一行極重要的財務學警告：<strong>「本基金追蹤之報酬率，僅限於單日倍數」</strong>。</p>
+      <p>為了維持單日倍數，基金經理人每天收盤前必須調整期貨部位，這叫每日平衡。在<strong>劇烈區間震盪、大盤反覆上下波動的「盤整市」**中，槓桿或反向商品會產生極其致命的</strong>「每日複利損耗 (Volatility Drag)」**。即使幾年後大盤指數回到了原點，這類 ETF 的淨值也早就被震盪損耗與高額內扣費蠶食鯨吞，面臨大賠。因此，這類商品**絕不適合長期存股**。</p>
     </div>
 
     <div class="quiz-section">
-      <div class="quiz-header">
-        <span class="quiz-badge">小測驗</span>
-        <span class="quiz-title-text">第四課理解確認</span>
-      </div>
-      <p class="quiz-q">關於反向 ETF 與槓桿型 ETF，以下敘述何者正確？</p>
+      <div class="quiz-header"><span class="quiz-badge">實戰情境題</span><span class="quiz-title-text">第四課深度理解確認</span></div>
+      <p class="quiz-q">小王與老李同時看好台灣股市的長線發展。小王選擇長期定期定額買進「台股大盤市值型 ETF（總費用率 0.2%）」並打算死抱三年；而老李為了追求更刺激的報酬，決定買進並長抱「台股大盤正2（2倍槓桿型）ETF（總費用率 1.2%）」。假設非常湊巧，未來三年內，台灣股市大盤陷入了極其劇烈的區間來回震盪盤整（經常單日大漲後隔日大跌，三年後指數剛好不漲不跌回到原點）。請問三年後，兩人的投資結果最可能呈現何種狀態？</p>
       <div class="quiz-options" id="q3-opts">
-        <button class="quiz-opt" onclick="answer(3,0,false)">A. 風險極低，非常適合新手長期存股</button>
-        <button class="quiz-opt" onclick="answer(3,1,false)">B. 報酬率與傳統存款一樣穩定</button>
-        <button class="quiz-opt" onclick="answer(3,2,true)">C. 存在每日複利損耗，不適合長期持有</button>
+        <button class="quiz-opt" onclick="answer(3,0,false)">A. 小王與老李都剛好接近損益兩平（僅扣除極微小的內扣費用），因為三年後大盤完全回到了原點</button>
+        <button class="quiz-opt" onclick="answer(3,1,false)">B. 老李的最終資產淨值會大幅超越小王，因為槓桿商品在高度震盪的市場中能賺取雙倍的波動紅利</button>
+        <button class="quiz-opt" onclick="answer(3,2,true)">C. 小王因內扣費用極低而僅有微幅減損；但老李會因為每日平衡的「複利損耗」與高額內扣費，面臨嚴重的資產大崩盤與大幅虧損</button>
       </div>
       <div class="quiz-feedback" id="q3-fb"></div>
-      <div class="nav-btns">
-        <button class="btn btn-dark" onclick="goChapter(2)">← 上一課</button>
-        <button class="btn btn-primary" onclick="nextChapter(3)" id="q3-next" style="display:none">繼續下一課 →</button>
-      </div>
+      <button class="btn btn-ghost" onclick="nextChapter(3)" id="q3-next" style="display:none">通過！進入第五課 →</button>
     </div>
   </div>
 
   <div class="chapter" id="ch-4">
     <div class="chapter-header">
-      <div class="chapter-tag">第五課 · 行動指南</div>
-      <h1 class="chapter-title">我該怎麼選？</h1>
-      <p class="chapter-subtitle">根據你的年齡、風險承受度、理財目標，規劃第一步。</p>
+      <div class="chapter-tag">第五課 · 戰略佈局</div>
+      <h1 class="chapter-title">資產配置法則與資產再平衡的科學</h1>
+      <p class="chapter-subtitle">真正的贏家不靠預測市場，而是靠反人性的紀律與資產結構管理。</p>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-blue">👤</div>
-        情境一：剛出社會的年輕上班族（22-30歲）
-      </div>
-      <p><strong>痛點：</strong>本金少、薪資成長中。<strong>優勢：</strong>時間最長（複利坡道長）。</p>
-      <p><strong>建議：</strong>著重「市值型 ETF」（如 0050, 006208），追求長期的資產總額增長，而非短期領配息。利用定期定額，強迫自己儲蓄與投資。</p>
+      <div class="card-title"><div class="card-icon icon-orange">🔱</div>原則一：尋找「非相關性」資產</div>
+      <p>資產配置（Asset Allocation）的精髓在於將資金分配在「弱相關」或「負相關」的資產中（如股票與傳統政府公債）。當經濟衰退、股市大崩盤時，往往會引發避險資金湧入債市，此時債券價格上漲，便能有效保護整個投資組合的總價值不至於大幅受創。</p>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-gold">👨‍👩‍👧‍👦</div>
-        情境二：成家立業的三寶爸媽（30-50歲）
+      <div class="card-title"><div class="card-icon icon-blue">📊</div>原則二：經典的「100 - 年齡法則」</div>
+      <p>財務學上最著名的風險資產配置指南：<strong>「用 100 減去你目前的年齡」，得到的數字就是你應該配置在風險資產（如股票、股票型 ETF）的百分比</strong>，而剩餘的資金則應穩健地配置在安全資產（如定存、高流動性債券）中。</p>
+      <div class="compare-grid">
+        <div class="compare-item">
+          <div class="label">假設你今年 30 歲</div>
+          <div class="value" style="color:var(--accent)">70% 股票 / 30% 定存</div>
+        </div>
+        <div class="compare-item accent-border">
+          <div class="label">假設你即將退休 60 歲</div>
+          <div class="value" style="color:var(--blue)">40% 股票 / 60% 定存債券</div>
+        </div>
       </div>
-      <p><strong>痛點：</strong>開銷大（房貸、教育費）。<strong>優勢：</strong>收入相對穩定。</p>
-      <p><strong>建議：</strong>核心配置以「核心市值型」搭配部分「高股息型或債券型 ETF」，在追求資產穩健成長的同時，也能有部分現金流貼補家用。</p>
     </div>
 
     <div class="card">
-      <div class="card-title">
-        <div class="card-icon icon-green">👴</div>
-        情境三：準備退休的樂活族（55歲以上）
+      <div class="card-title"><div class="card-icon icon-gold">🔄</div>原則三：理財紀律的最高境界——資產再平衡</div>
+      <p>配置好比例後，隨著時間推移，資產價值會變動。當全球股市大漲時，你的股票價值激增，會導致你的股票比例自動失衡（例如從設定的 60% 飆升到 80%）。這代表你的組合此時風險過高！</p>
+      <div class="highlight">
+        💡 <strong>資產再平衡 (Asset Rebalancing)</strong>：此時，你必須強迫自己執行「反人性操作」——定期賣出那些漲多的股票資產（高檔獲利了結），並將資金轉而買進進度落後的安全資產或跌深的債券（低檔加碼）。這套機械化的紀律操作，能確保你永遠在市場上落實**「高賣低買」**。
       </div>
-      <p><strong>痛點：</strong>經不起大風大浪。<strong>優勢：</strong>累積了一定本金。</p>
-      <p><strong>建議：</strong>著重防禦與現金流。以「債券型 ETF」搭配穩健的「高股息 ETF」為主，降低整體資產的波動波動，保障退休金不會因為股市大跌而重創。</p>
     </div>
 
     <div class="quiz-section">
-      <div class="quiz-header">
-        <span class="quiz-badge">小測驗</span>
-        <span class="quiz-title-text">第五課理解確認</span>
-      </div>
-      <p class="quiz-q">一個剛畢業 23 歲、距離退休還有 40 年的年輕人，最能幫他放大複利效果的策略是？</p>
+      <div class="quiz-header"><span class="quiz-badge">實戰情境題</span><span class="quiz-title-text">第五課深度理解確認</span></div>
+      <p class="quiz-q">今年 40 歲的阿明依據經典的「100 - 年齡法則」為自己設定了初始資產配置。經過一整年的全球股市大牛市，阿明的股票資產大幅翻倍，導致他目前的整體資產比例變成了「股票資產佔 80%、定存與債券資產佔 20%」。請問：為了維持理財紀律並將整體投資風險控制在原訂的健康範圍，阿明此時最理性的「資產再平衡」操作應為以下何者？</p>
       <div class="quiz-options" id="q4-opts">
-        <button class="quiz-opt" onclick="answer(4,0,true)">A. 利用大把的時間優勢，專注配置市值型商品，讓本金滾大</button>
-        <button class="quiz-opt" onclick="answer(4,1,false)">B. 把全部的錢放定存，防止任何波動</button>
-        <button class="quiz-opt" onclick="answer(4,2,false)">C. 買滿反向與槓桿型商品，追求每天賺大錢</button>
+        <button class="quiz-opt" onclick="answer(4,0,false)">A. 保持現狀不變，並將每月的剩餘薪水更激進地全部加碼投入股票，因為此時股市正強，應順勢操作</button>
+        <button class="quiz-opt" onclick="answer(4,1,true)">B. 狠下心賣出佔總資產 20% 權重的股票型資產，並將這筆錢轉入定存與債券，強制使比例回歸 60% 股票、40% 定存債券</button>
+        <button class="quiz-opt" onclick="answer(4,2,false)">C. 賣出佔總資產 10% 權重的股票型資產轉入定存，使比例回歸 70% 股票、30% 定存債券</button>
       </div>
       <div class="quiz-feedback" id="q4-fb"></div>
-      <div class="nav-btns">
-        <button class="btn btn-dark" onclick="goChapter(3)">← 上一課</button>
-        <button class="btn btn-primary" onclick="nextChapter(4)" id="q4-next" style="display:none">前往最終章 →</button>
-      </div>
+      <button class="btn btn-ghost" onclick="nextChapter(4)" id="q4-next" style="display:none">通過！進入最後一課「放空實驗室」 →</button>
     </div>
   </div>
 
   <div class="chapter" id="ch-5">
     <div class="chapter-header">
-      <div class="chapter-tag">第六課 · 實戰演練</div>
-      <h1 class="chapter-title">ETF 投資策略模擬器</h1>
-      <p class="chapter-subtitle">親自動手調整參數，看看不同的本金、報酬率、內扣費用與通貨膨脹，在時間複利下對你的真實購買力產生的巨大影響。</p>
+      <div class="chapter-tag">第六課 · 實戰實驗室</div>
+      <h1 class="chapter-title">融券做空機制與維持率致命危機</h1>
+      <p class="chapter-subtitle">學會看多之後，我們必須認識金融市場的逆向武器：融券 (Short Selling)。</p>
     </div>
 
-    <div class="simulator-layout">
-      <div class="sim-controls">
-        <div class="sim-control-item">
-          <label class="sim-label">初始本金 (NT$): <span id="v1" class="sim-val-tag"></span></label>
-          <input type="range" id="initSum" class="sim-input-range" min="0" max="1000000" step="10000" value="100000">
-        </div>
-        <div class="sim-control-item">
-          <label class="sim-label">每月定期定額投入 (NT$): <span id="v2" class="sim-val-tag"></span></label>
-          <input type="range" id="monthly" class="sim-input-range" min="0" max="100000" step="1000" value="10000">
-        </div>
-        <div class="sim-control-item">
-          <label class="sim-label">預期年化報酬率 (%): <span id="v3" class="sim-val-tag"></span></label>
-          <input type="range" id="rate" class="sim-input-range" min="1" max="15" step="0.5" value="7">
-        </div>
-        <div class="sim-control-item">
-          <label class="sim-label">投資年限 (年): <span id="v4" class="sim-val-tag"></span></label>
-          <input type="range" id="years" class="sim-input-range" min="1" max="40" step="1" value="20">
-        </div>
-        <div class="sim-control-item sim-control-item highlight-bg">
-          <label class="sim-label">ETF 總內扣費用率 (%): <span id="v5" class="sim-val-tag"></span></label>
-          <input type="range" id="cost" class="sim-input-range" min="0" max="2.5" step="0.05" value="0.5">
-        </div>
-        <div class="sim-control-item sim-control-item highlight-bg">
-          <label class="sim-label">預期年通貨膨脹率 (%): <span id="v6" class="sim-val-tag"></span></label>
-          <input type="range" id="inflation" class="sim-input-range" min="0" max="5" step="0.1" value="2">
-        </div>
-
-        <div class="sim-result-panel">
-          帳面總資產 (稅後)
-          <span id="finalTotal" class="sim-final-sum"></span>
-          <small style="color: #ffab91;">實質購買力 (考慮通膨後): <span id="realPower" style="font-weight:700;"></span></small>
-        </div>
-      </div>
-
-      <div class="sim-chart-container">
-        <canvas id="simChart"></canvas>
-      </div>
+    <div class="card">
+      <div class="card-title"><div class="card-icon icon-orange">📉</div>觀念一：融券的逆向思維</div>
+      <p>融券就是<strong>「看空（Bearish）」</strong>。當你預期某股票未來會崩盤，你向券商借來這檔股票並以當前高價「先賣出」，等到股價如預期下跌後，你再以低價從市場買回來「歸還給券商」，從中賺取高賣低買的差價。</p>
     </div>
 
-    <div class="sim-strategy-box" id="insight"></div>
+    <div class="card">
+      <div class="card-title"><div class="card-icon icon-dark">☠️</div>觀念二：數學上的風險不對稱與台灣追繳斷頭機制</div>
+      <p>買股票（看多）虧損有底（最多跌到 0 元，虧損 100%），但獲利無限。<strong>融券放空則相反：獲利有限（最多跌到 0 元），虧損卻完全無限（因為股價往上漲沒有天花板）！</strong></p>
+      <p>在台灣放空股票，你必須自備 <strong>90% 的保證金</strong>。券商為了防止你虧損到賠不起，設計了<strong>「融券維持率」</strong>監控制度：</p>
+      <div class="highlight gold" style="font-family: monospace; text-align:center; font-size: 0.95rem;">
+        融券維持率 ＝ ( 融券保證金 ＋ 融券賣出價款 ) ／ 股票當前市場市值 × 100%
+      </div>
+      <p>初始放空時，維持率通常約在 <strong>190%</strong> 左右。如果股價不跌反漲（稱為遭市場<strong>「軋空 Short Squeeze」</strong>），分母的當前市值會變大，導致維持率快速下滑。<strong>當維持率跌破台灣法定的 130% 門檻時</strong>，券商會向你發出限期追繳保證金通知。若你未在限期內補足，券商會啟動強制斷頭機制——直接在市場上不計代價強制買回股票，這時往往會引發毁灭性的爆倉虧損。</p>
+    </div>
 
-    <div class="nav-btns">
-      <button class="btn btn-dark" onclick="goChapter(4)">← 上一課</button>
-      <button class="btn btn-primary" onclick="showFinalSummary()">結算學習成果 🎉</button>
+    <div class="quiz-section" style="margin-bottom:30px;">
+      <div class="quiz-header"><span class="quiz-badge">實戰情境題</span><span class="quiz-title-text">第六課深度理解確認</span></div>
+      <p class="quiz-q">小張認為「泡沫科技」目前每股 100 元的股價嚴重高估，於是向券商融券賣出 1 張（1,000股），並依規定自備 90% 保證金（繳交 9 萬元，此時券商保管的總擔保價值為 9萬保證金 + 10萬賣出價款 = 19萬元）。不幸的是，泡沫科技隔日宣布利多，股價連續暴漲到每股 150 元。若不計任何利息與手續費成本，請問此時小張的「融券維持率」大約降至多少？他正面臨什麼實務風險？</p>
+      <div class="quiz-options" id="q5-opts">
+        <button class="quiz-opt" onclick="answer(5,0,false)">A. 維持率約為 140.0%；尚未達到追繳門檻，小張可以繼續安心死抱股票死撐</button>
+        <button class="quiz-opt" onclick="answer(5,1,true)">B. 維持率約為 126.7%；已跌破 130% 的法定追繳門檻，小張將面臨被券商發出追繳令甚至直接強制斷頭買回的毀滅性風險</button>
+        <button class="quiz-opt" onclick="answer(5,2,false)">C. 維持率約為 60.0%；因為股價上漲了 50 元，導致小張自備的 9 萬元保證金直接縮水了 5 萬元</button>
+      </div>
+      <div class="quiz-feedback" id="q5-fb"></div>
+      <button class="btn btn-ghost" onclick="nextChapter(5)" id="q5-next" style="display:none">太棒了！結算修業成果 →</button>
+    </div>
+
+    <div class="card" style="border: 2px solid var(--ink); margin-top:40px;">
+      <div class="card-title"><div class="card-icon icon-dark">⚙️</div>融券實戰動態網頁實驗室</div>
+      <p style="font-size:0.85rem; color:var(--ink-muted);">請親自拖動下方滑桿，動態觀察股價變化如何影響真實世界的「融券維持率」與「投資報酬率(ROI)」。</p>
+      
+      <div class="sim-input-group" style="margin-top:20px;">
+        <div class="sim-label-row"><span>1. 融券賣出價 (先賣高)</span><span id="sellPriceDisplay" style="font-weight:700; color:var(--accent);">NT$ 100</span></div>
+        <input type="range" id="sellPriceInput" min="10" max="200" value="100">
+      </div>
+
+      <div class="sim-input-group">
+        <div class="sim-label-row"><span>2. 當前市場股價 (後買低/回補)</span><span id="buyPriceDisplay" style="font-weight:700; color:var(--blue);">NT$ 60</span></div>
+        <input type="range" id="buyPriceInput" min="10" max="200" value="60">
+      </div>
+
+      <div class="sim-result-panel">
+        <div class="sim-result-row"><span>自備融券保證金 (90%)</span><span id="marginVal" style="font-weight:500;">NT$ 90</span></div>
+        <div class="sim-result-row"><span>券商總擔保價值 (保證金+賣出價款)</span><span id="collateralVal" style="font-weight:500;">NT$ 190</span></div>
+        <div class="sim-result-row" style="border-bottom: 1px dashed var(--border); padding-bottom: 10px; margin-bottom: 10px;">
+          <span><strong>即時融券維持率 (台灣法定門檻 130%)</strong></span><span id="ratioVal" style="font-size: 1.1rem; font-weight:700;">190.0%</span>
+        </div>
+        <div class="sim-result-row"><span>每股盈虧</span><span id="diffVal" style="font-weight:600;">NT$ +40</span></div>
+        <div class="sim-result-row sim-result-total"><span>預估投資報酬率 (ROI)</span><span id="roiVal">+44.4%</span></div>
+      </div>
+
+      <div class="sim-message-box" id="simMessage">
+        正在初始化模擬數據...
+      </div>
     </div>
   </div>
 
-  <div class="chapter" id="ch-final">
+  <div class="chapter" id="ch-6">
     <div class="final-screen">
-      <div class="final-medal">🎓</div>
-      <h1 class="final-title">恭喜畢業！</h1>
-      <p class="final-sub">你已經完成了理財入門的所有基礎課程，並透過模擬器親眼見證了時間複利與成本控制的威力。</p>
-
+      <div class="final-medal">🏆</div>
+      <h2 class="final-title">頂級結業證書：全方位財務實戰家</h2>
+      <p style="color:var(--ink-muted); margin-bottom:15px;">恭喜你完成了所有嚴格的核心財務與風險管理修業測驗！</p>
       <div id="score-area"></div>
-
-      <div class="final-cards">
-        <div class="final-card">
-          <div class="emoji">🛡️</div>
-          <div class="fc-title">攻守兼備</div>
-          <div class="fc-desc">你分得清緊急預備金（存款）與增值資產（股票、ETF）的差別了。</div>
-        </div>
-        <div class="final-card">
-          <div class="emoji">🔍</div>
-          <div class="fc-title">成本識破者</div>
-          <div class="fc-desc">你明白了內扣費用是如何默默吃掉複利，未來選產品會更聰明。</div>
-        </div>
-        <div class="final-card">
-          <div class="emoji">⏳</div>
-          <div class="fc-title">時間的朋友</div>
-          <div class="fc-desc">最好的投資時機是十年前，其次就是現在。</div>
-        </div>
-      </div>
-
-      <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
-        <button class="btn btn-dark" onclick="restart()">重新學習 🔄</button>
-        <button class="btn btn-primary" onclick="goChapter(5)">返回模擬器 📊</button>
+      <div style="margin-top:30px;">
+        <button class="btn btn-primary" onclick="restart()">重新挑戰特訓</button>
       </div>
     </div>
   </div>
-
 </div>
 
 <script>
-  // ── CORE QUIZ & PROGRESS LOGIC ──
-  const totalChapters = 5; // 前5課有測驗
+  const totalChapters = 6;
   let quizDone = new Array(totalChapters).fill(false);
   let correctCount = 0;
-  let activeCh = 0;
-  let simChart; // 用於存放模擬器 Chart 實例
+
+  // 每一課深度題目對應的反人性舉一反三深度解析
+  const quizExplanations = [
+    {
+      correct: "✅ <b>完全正確！舉一反三成功！</b><br><b>第一步先計算『實質利率』：</b>名目利率 5% - 通膨率 2% = 3%（這才是你的購買力真正的實質增長速度）。<br><b>第二步套用『72法則』：</b>72 / 實質利率 3 ＝ 24 年。小美需要整整 24 年才能讓資產的實質購買力翻倍。你具備極佳的財務邏輯思維！",
+      wrong: "❌ <b>可惜答錯囉！請注意陷阱細節：</b><br>不能直接用名目報酬率 5% 來算，因為通膨會默默偷走貨幣購買力！實質利率應為 5% - 2% = 3%。接著使用 72 法則公式：72 / 3% ＝ 24 年。絕非直接抄名目數字，這正是通膨可怕的隱形威力。"
+    },
+    {
+      correct: "✅ <b>完全正確！沒有被複雜數字迷惑！</b><br>中央存款保險最高只保障『存款本利和』。老張透過銀行買的海外科技基金屬於投資工具，不屬於存款，存保不予理賠。老張在銀行的存款總計：活存 100萬 + 定存 250萬 + 利息 5萬 = 355萬元。但由於單一人在單一銀行的存保最高理賠上限為 300 萬元，因此多出的 55 萬及基金接不在存保公司的賠付範圍內。風險邊界劃分得非常完美！",
+      wrong: "❌ <b>觀念有誤，請注意存款保險的邊界：</b><br>第一，海外基金是投資工具，不屬於存款，存款保險完全不予保障；第二，台灣存款保險的『300萬上限』是看單一人在單一銀行的本金加利息之總和。老張的存款總計 355 萬，因此受限於法規，最高全額理賠金就是 300 萬元。多餘的錢需等銀行清算。"
+    },
+    {
+      correct: "✅ <b>思維極度清晰！</b><br><b>除息參考價：</b>原股價 120 元 - 股利 8 元 = 112 元。<br>阿明當初投入 120 元本金，設定 20% 的實際報酬，代表他的總資產（股票市值 + 已領現金股利）最終必須達到 120 * 1.2 = 144 元。由於他口袋裡已經拿到了 8 元的現金股利，因此股票的市場市值只需要達到 144 - 8 = 136 元即可。亦即股價必須從除息後的 112 元『完全填息』一路上漲至 136 元才達成目標。這題能答對代表你對除權息真相理解透徹！",
+      wrong: "❌ <b>可惜答錯了，這題含金量極高：</b><br>首先，除息交易日當天，股價必須扣除股利（120 - 8 = 112元）。阿明要賺 20% 的利潤也就是要賺取 120 * 20% = 24 元。其中 8 元已經是股息發給他了，所以他需要股票再幫他賺 16 元的價差。除息後的開盤價 112 元加上 16 元所需價差 ＝ 136 元。此時總資產為 136 + 8 = 144 元，剛好是初始 120 元本金的 1.2 倍。"
+    },
+    {
+      correct: "✅ <b>太強了！你成功避開了金融市場最隱蔽的結構性陷阱！</b><br>槓桿型 ETF（如正2）具有『每日平衡』機制，其追蹤效果僅限於『單日倍數』。在暴漲暴跌、上下劇烈震盪的『區間盤整市』中，每日平衡的操作會產生極其恐怖的『每日複利損耗（Volatility Drag）』。三年下來，即使大盤回到原點，正2 ETF 的淨值也早已在波動中被自我蠶食殆盡，加上高昂的內扣費用，必然面臨資產崩盤大賠。這種商品絕不適合長期持有！",
+      wrong: "❌ <b>這是無數新手甚至老手都踩過的致命誤區：</b><br>槓桿 ETF 的 2 倍是指『單日』報酬的 2 倍。當市場上下劇烈震盪而沒有明顯趨勢時，每日收盤前的期貨權重調整會產生巨大的『波動損耗（複利減損）』，加上高達 1.2% 的內扣費，大盤回到原點時，槓桿型 ETF 幾乎必然會大幅虧損！小王定期定額的低成本市值型 ETF 才是盤整市的穩健解。"
+    },
+    {
+      correct: "✅ <b>紀律卓越！反人性操作才是頂尖贏家的核心！</b><br>根據『100 - 年齡法则』，40 歲的阿明其初始且理想的資產配置比例應為：100 - 40 = 60% 配置於股票型風險資產，40% 配置於定存/債券。目前因為大牛市，他的股票飆升佔了 80% 的總權重，這代表他的投資組合目前風險暴露過高。為了落實資產再平衡的紀律，他必須『強迫在相對高點獲利了結』，賣出多出來的 20% 股票，並將資金轉存定存與加碼債券（低檔買進安全資產），使其比例回歸 60:40 的初始健康設定。",
+      wrong: "❌ <b>被市場的大漲情緒牽著走囉！</b><br><b>第一步：</b>依據 100 - 40 歲，阿明理性的初始比例應是 60% 股票、40% 定存債券（選C是記錯公式比例）。<br><b>第二步：</b>目前股票飆到 80%，組合過於危險。此時應該落實再平衡，『賣出多出來的 20% 股票』轉入定存與債券，強迫高檔獲利了結並回歸初始設定。保持現狀不理，往往會在接下來的熊市遭遇毀滅性打擊。"
+    },
+    {
+      correct: "✅ <b>神人級的財務計算與台股實務應用能力！</b><br><b>維持率公式分子（總擔保價值）</b> = 9萬保證金 + 10萬賣出價款 = 19萬元（此金額鎖死在券商，不隨股價變動）。<br><b>分母（股票當前市值）</b> = 150元 * 1,000股 = 15萬元。<br><b>當前融券維持率</b> = 190,000 / 150,000 * 100% ＝ 126.67%。<br>因為 126.67% 已經跌破了台灣法規規定的 130% 致命死線，小張會立刻收到券商發出的追繳令，若不趕緊補錢，券商將會在市場上直接不計代價強制買回股票，造成慘烈的斷頭虧損。恭喜你，你完全融會貫通了！",
+      wrong: "❌ <b>計算或實務規則漏掉了喔：</b><br>融券維持率的分子是『保證金 9 萬 + 賣出價款 10 萬 = 19 萬』。分母是當前最新市值：150元 * 1000股 = 15萬。計算結果 19 / 15 ＝ 126.67%。在台灣證券市場，只要維持率跌破 130%，就會立刻觸發追繳與斷頭機制，絕不可能安心死抱。請利用下方的模擬器拉動滑桿親自驗證！"
+    }
+  ];
 
   function goChapter(idx) {
-    document.querySelectorAll('.chapter').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.chapter-btn').forEach(el => el.classList.remove('active'));
-
-    // 如果去到結算頁
-    if (idx === 'final') {
-      document.getElementById('ch-final').classList.add('active');
-    } else {
-      document.getElementById(`ch-${idx}`).classList.add('active');
-      const btns = document.querySelectorAll('.chapter-btn');
-      if(btns[idx]) btns[idx].classList.add('active');
-      activeCh = idx;
+    document.querySelectorAll('.chapter').forEach(c => c.style.display = 'none');
+    document.querySelectorAll('.chapter-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(`ch-${idx}`).style.display = 'block';
+    
+    if (idx < 6) {
+        document.querySelectorAll('.chapter-nav .chapter-btn')[idx].classList.add('active');
+    }
+    
+    if (idx === 5) {
+        updateSimulator(); // 進入第 6 課時自動啟動模擬器
+    }
+    if (idx === 6) {
+        showFinal(); // 顯示證書結算成績
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     updateProgress();
@@ -1194,178 +588,122 @@
   function answer(chIdx, optIdx, isCorrect) {
     if (quizDone[chIdx]) return;
     quizDone[chIdx] = true;
-
+    
     const opts = document.querySelectorAll(`#q${chIdx}-opts .quiz-opt`);
-    opts.forEach((btn, i) => {
-      btn.disabled = true;
-      if (i === optIdx) {
-        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    opts.forEach((opt, idx) => {
+      opt.disabled = true;
+      if (idx === optIdx) {
+        opt.classList.add(isCorrect ? 'correct' : 'wrong');
       }
     });
-
+    
+    if (isCorrect) correctCount++;
+    
     const fb = document.getElementById(`q${chIdx}-fb`);
-    fb.className = 'quiz-feedback show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
-    if (isCorrect) {
-      fb.textContent = '🎉 答對了！你掌握得很好。';
-      correctCount++;
-    } else {
-      fb.textContent = '❌ 答錯了，再看一遍文章想想看喔！';
-    }
-
-    const nextBtn = document.getElementById(`q${chIdx}-next`);
-    if (nextBtn) nextBtn.style.display = 'inline-flex';
-
-    const currentNavBtn = document.querySelectorAll('.chapter-nav .chapter-btn')[chIdx];
-    if (currentNavBtn) currentNavBtn.classList.add('done');
-
+    fb.className = "quiz-feedback show " + (isCorrect ? "correct-fb" : "wrong-fb");
+    fb.innerHTML = isCorrect ? quizExplanations[chIdx].correct : quizExplanations[chIdx].wrong;
+    
+    document.getElementById(`q${chIdx}-next`).style.display = "inline-flex";
     updateProgress();
   }
 
-  function nextChapter(chIdx) {
-    goChapter(chIdx + 1);
+  function nextChapter(from) {
+    document.querySelectorAll('.chapter-nav .chapter-btn')[from].classList.add('done');
+    goChapter(from + 1);
   }
 
   function updateProgress() {
     const done = quizDone.filter(Boolean).length;
-    // 總進度包含模擬器，所以除以 6 堂課
-    const pct = Math.round((done / 6) * 100);
+    const isFinal = document.getElementById('ch-6').style.display === 'block';
+    const pct = isFinal ? 100 : Math.round((done / totalChapters) * 100);
     document.getElementById('progressBar').style.width = pct + '%';
     document.getElementById('progressPct').textContent = pct + '%';
   }
 
-  function showFinalSummary() {
-    document.querySelectorAll('.chapter').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.chapter-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById('ch-final').classList.add('active');
+  // ── SIMULATOR LOGIC (台灣放空法規精確公式) ──
+  const sellIn = document.getElementById('sellPriceInput');
+  const buyIn = document.getElementById('buyPriceInput');
+  
+  function updateSimulator() {
+    const sell = parseFloat(sellIn.value);
+    const buy = parseFloat(buyIn.value); // 此處buy代表當前市場股價（或未來回補價）
+    
+    document.getElementById('sellPriceDisplay').textContent = `NT$ ${sell}`;
+    document.getElementById('buyPriceDisplay').textContent = `NT$ ${buy}`;
+    
+    // 台灣市場真實公式
+    const margin = sell * 0.9;             // 90% 自備保證金
+    const totalCollateral = sell + margin; // 分子：總擔保價值
+    const marginRatio = (totalCollateral / buy) * 100; // 融券維持率
+    const diff = sell - buy;               // 每股盈虧
+    const roi = (diff / margin) * 100;     // 投資報酬率
 
+    document.getElementById('marginVal').textContent = `NT$ ${margin.toFixed(0)}`;
+    document.getElementById('collateralVal').textContent = `NT$ ${totalCollateral.toFixed(0)}`;
+    
+    const ratioEl = document.getElementById('ratioVal');
+    ratioEl.textContent = `${marginRatio.toFixed(1)}%`;
+    
+    const diffEl = document.getElementById('diffVal');
+    const roiEl = document.getElementById('roiVal');
+    const msgEl = document.getElementById('simMessage');
+
+    // 維持率與盈虧的動態 UI 渲染
+    if (marginRatio < 130) {
+        // 跌破 130% 的斷頭警告
+        ratioEl.style.color = "var(--loss-red)";
+        diffEl.textContent = `NT$ ${diff.toFixed(0)}`;
+        diffEl.style.color = "var(--loss-red)";
+        roiEl.textContent = `${roi.toFixed(1)}%`;
+        roiEl.style.color = "var(--loss-red)";
+        
+        msgEl.innerHTML = "🔥 <b>斷頭危機！</b>您的融券維持率已<b>跌破 130%</b> 法定底線！券商將立刻對您發出限期補繳通知書。若未在限期內補足保證金，券商將在開盤不計代價啟動<b>『強制斷頭回補』</b>，造成毀滅性的軋空慘賠！";
+        msgEl.style.background = "#FADBD8";
+        msgEl.style.color = "#C0392B";
+        msgEl.style.borderColor = "#E74C3C";
+    } else if (diff >= 0) {
+        // 股價下跌，放空獲利
+        ratioEl.style.color = "var(--green)";
+        diffEl.textContent = `NT$ +${diff.toFixed(0)}`;
+        diffEl.style.color = "var(--green)";
+        roiEl.textContent = `+${roi.toFixed(1)}%`;
+        roiEl.style.color = "var(--green)";
+        
+        msgEl.innerHTML = "📈 <b>獲利成真：</b>市場股價如預期下跌！您此時可以低價買回股票歸還券商，成功賺取放空價差。維持率非常健康安全。";
+        msgEl.style.background = "var(--green-light)";
+        msgEl.style.color = "var(--green)";
+        msgEl.style.borderColor = "#B7E4C7";
+    } else {
+        // 股價上漲，遭遇軋空但尚未斷頭
+        ratioEl.style.color = "var(--gold)";
+        diffEl.textContent = `NT$ ${diff.toFixed(0)}`;
+        diffEl.style.color = "var(--loss-red)";
+        roiEl.textContent = `${roi.toFixed(1)}%`;
+        roiEl.style.color = "var(--loss-red)";
+        
+        msgEl.innerHTML = "⚠️ <b>遭遇軋空危機：</b>市場股價不跌反漲，您的保證金資產正在快速燃燒縮水！請緊盯維持率，嚴格考慮執行停損以防被強制斷頭。";
+        msgEl.style.background = "var(--gold-light)";
+        msgEl.style.color = "var(--gold)";
+        msgEl.style.borderColor = "#DCC078";
+    }
+  }
+
+  sellIn.addEventListener('input', updateSimulator);
+  buyIn.addEventListener('input', updateSimulator);
+
+  function showFinal() {
     const scoreArea = document.getElementById('score-area');
     scoreArea.innerHTML = `
-      <div class="score-display">
-        基礎課小測驗成績：<strong>${correctCount} / ${totalChapters}</strong> 題答對
-      </div>`;
-
-    document.getElementById('progressBar').style.width = '100%';
-    document.getElementById('progressPct').textContent = '100%';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+      <div class="score-display">結業特訓成績：<strong>${correctCount} / ${totalChapters}</strong> 題完全答對</div>
+    `;
   }
 
   function restart() {
-    quizDone.fill(false);
-    correctCount = 0;
-
-    // 重置所有測驗
-    for (let i = 0; i < totalChapters; i++) {
-      const opts = document.querySelectorAll(`#q${i}-opts .quiz-opt`);
-      opts.forEach(btn => {
-        btn.disabled = false;
-        btn.classList.remove('correct', 'wrong');
-      });
-      const fb = document.getElementById(`q${i}-fb`);
-      if (fb) { fb.className = 'quiz-feedback'; fb.textContent = ''; }
-      const nextBtn = document.getElementById(`q${i}-next`);
-      if (nextBtn) nextBtn.style.display = 'none';
-    }
-
-    document.querySelectorAll('.chapter-nav .chapter-btn').forEach(b => b.classList.remove('done', 'active'));
-    goChapter(0);
-    updateProgress();
+    location.reload(); // 重啟課程，刷新頁面以完全重置所有變數與 UI 狀態
   }
 
-  // ── SIMULATOR CALCULATION ENGINE ──
-  function runSimulation() {
-    const initSum = parseInt(document.getElementById('initSum').value);
-    const monthly = parseInt(document.getElementById('monthly').value);
-    const rawRate = parseFloat(document.getElementById('rate').value);
-    const rawCost = parseFloat(document.getElementById('cost').value);
-    const rawInf = parseFloat(document.getElementById('inflation').value);
-    const years = parseInt(document.getElementById('years').value);
-    
-    // 月淨報酬率 (年報酬扣除管理費後除以12)
-    const netRate = (rawRate - rawCost) / 100 / 12;
-
-    // 更新各滑桿右側數值標籤
-    document.getElementById('v1').innerText = initSum.toLocaleString();
-    document.getElementById('v2').innerText = monthly.toLocaleString();
-    document.getElementById('v3').innerText = rawRate + '%';
-    document.getElementById('v4').innerText = years + '年';
-    document.getElementById('v5').innerText = rawCost + '%';
-    document.getElementById('v6').innerText = rawInf + '%';
-
-    let nominalData = [];
-    let realData = [];
-    let labels = [];
-    let currentNominal = initSum;
-
-    for (let i = 0; i <= years; i++) {
-        labels.push('第' + i + '年');
-        nominalData.push(Math.round(currentNominal));
-        // 實質購買力：資產金額 / (1 + 年通膨率)^年數
-        realData.push(Math.round(currentNominal / Math.pow(1 + rawInf / 100, i)));
-        
-        for (let m = 0; m < 12; m++) {
-            currentNominal = (currentNominal + monthly) * (1 + netRate);
-        }
-    }
-
-    // 渲染總值面板
-    document.getElementById('finalTotal').innerText = 'NT$ ' + nominalData[nominalData.length - 1].toLocaleString();
-    document.getElementById('realPower').innerText = 'NT$ ' + realData[realData.length - 1].toLocaleString();
-
-    // 專家策略導讀演算法
-    let insight = "<b>[模擬器專家策略診斷報告]</b><br>";
-    const realReturn = rawRate - rawCost - rawInf;
-
-    if (rawCost > 1.2) insight += "❌ <b>費用黑洞：</b>您的內扣費用率過高（主動型基金常見），將會嚴重吞噬您的長期複利財富。<br>";
-    else if (rawCost < 0.4) insight += "✅ <b>低摩擦運行：</b>費用極低（優質被動型 ETF 特色），您的複利斜率正以最佳效率運作。<br>";
-
-    if (realReturn <= 0) insight += "⚠️ <b>購買力歸零警報：</b>您的預期回報已被成本與通膨完全吃光！實質資產正在縮水，請考慮優化標的。<br>";
-    else if (realReturn < 3) insight += "💡 <b>增長緩慢：</b>扣除通膨與成本後的實質回報僅 " + realReturn.toFixed(1) + "%，需擴大本金或拉高預期標的回報。<br>";
-
-    if (years < 15) insight += "⏳ <b>時間斜率低：</b>目前的財富增長主要依賴您的『儲蓄投入』，複利引擎尚未真正進入陡峭增長區。<br>";
-    else insight += "🎯 <b>時間紅利釋放：</b>長期持有讓複利引擎完全啟動，後期曲線明顯上揚，這正是滾大雪球的核心策略。";
-
-    document.getElementById('insight').innerHTML = insight;
-
-    // 渲染或更新 Chart.js 圖表
-    const ctx = document.getElementById('simChart').getContext('2d');
-    if (simChart) simChart.destroy();
-    
-    simChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                { label: '帳面金額 (稅後)', data: nominalData, borderColor: '#C8622A', backgroundColor: 'rgba(200,98,42,0.06)', fill: true, tension: 0.2 },
-                { label: '實質購買力 (扣除通膨)', data: realData, borderColor: '#1D4E89', borderDash: [5, 5], fill: false, tension: 0.2 }
-            ]
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false,
-            plugins: { 
-                legend: { position: 'top', labels: { font: { family: 'Noto Sans TC' } } } 
-            },
-            scales: {
-                y: { ticks: { font: { family: 'Noto Sans TC' } } },
-                x: { ticks: { font: { family: 'Noto Sans TC' } } }
-            }
-        }
-    });
-  }
-
-  // ── INITIALIZATION ──
-  // 採用 window.onload 保護機制，確保 HTML 結構、CSS 與 cdnjs 庫皆完整載入後，再行啟動代碼。
-  window.onload = function() {
-    // 綁定模擬器的輸入滑桿事件
-    document.querySelectorAll('.sim-input-range').forEach(input => {
-      input.addEventListener('input', runSimulation);
-    });
-    
-    // 初始化執行第一次模擬計算與進度更新
-    runSimulation();
-    updateProgress();
-  };
+  // 初始化啟動
+  goChapter(0);
 </script>
-
 </body>
 </html>
